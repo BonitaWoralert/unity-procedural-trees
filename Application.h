@@ -6,21 +6,9 @@
 #include <directxmath.h>
 #include <directxcolors.h>
 #include "resource.h"
-
+#include "OBJLoader.h"
+#include "Camera.h"
 using namespace DirectX;
-
-struct SimpleVertex
-{
-    XMFLOAT3 Pos;
-    XMFLOAT4 Color;
-};
-
-struct ConstantBuffer
-{
-	XMMATRIX mWorld;
-	XMMATRIX mView;
-	XMMATRIX mProjection;
-};
 
 class Application
 {
@@ -36,17 +24,28 @@ private:
 	ID3D11VertexShader*     _pVertexShader;
 	ID3D11PixelShader*      _pPixelShader;
 	ID3D11InputLayout*      _pVertexLayout;
-	ID3D11Buffer*           _pVertexBuffer;
-	ID3D11Buffer*           _pIndexBuffer;
 	ID3D11Buffer*           _pConstantBuffer;
-	XMFLOAT4X4              _world;
-	XMFLOAT4X4              _view;
-	XMFLOAT4X4              _projection;
+	XMFLOAT4X4              _world, _world2, _world3; //worlds for 3 different .obj files
 
-	//depth / stencil buffer
-
+	//wireframe + solid states
+	ID3D11RasterizerState* _wireFrame;
+	ID3D11RasterizerState* _solid;
+	
+	//depth buffer
 	ID3D11Texture2D* _depthStencilBuffer;
 	ID3D11DepthStencilView* _depthStencilView;
+
+	//texturing
+	ID3D11ShaderResourceView* _pTextureRV;
+	ID3D11SamplerState* _pSamplerLinear;
+
+	//obj loads 
+	MeshData _Mesh1;
+	MeshData _Mesh2;
+	MeshData _Mesh3;
+
+	//camera
+	Camera* _camera;
 
 private:
 	HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow);
@@ -54,13 +53,27 @@ private:
 	void Cleanup();
 	HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 	HRESULT InitShadersAndInputLayout();
-	HRESULT InitVertexBuffer();
-	HRESULT InitIndexBuffer();
 
+	//size of window
 	UINT _WindowHeight;
 	UINT _WindowWidth;
 
-	ID3D11RasterizerState* _wireframe;
+	//lighting section! 
+
+	//diffuse floats
+	XMFLOAT4 DiffuseMaterial;
+	XMFLOAT4 DiffuseLight;
+	XMFLOAT3 directionToLight;
+
+	//ambient floats
+	XMFLOAT4 AmbientLight;
+	XMFLOAT4 AmbientMaterial;
+
+	//specular floats
+	XMFLOAT4 SpecularMaterial;
+	XMFLOAT4 SpecularLight;
+	FLOAT SpecularPower; //Power to raise specular falloff by
+	XMFLOAT3 EyeWorldPos; //Camera's eye position in the world
 
 public:
 	Application();
@@ -70,5 +83,13 @@ public:
 
 	void Update();
 	void Draw();
+
+	void OnMouseDown(WPARAM btnState, int x, int y);
+	void OnMouseUp(WPARAM btnState, int x, int y);
+	void OnMouseMove(WPARAM btnState, int x, int y);
+
+	virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+	POINT mLastMousePos;
 };
 
