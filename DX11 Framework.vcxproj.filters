@@ -19,8 +19,6 @@
     <ClInclude Include="OBJLoader.h" />
     <ClInclude Include="Structures.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="MathHelper.h" />
-    <ClInclude Include="GeometryGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
@@ -28,8 +26,6 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="OBJLoader.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="MathHelper.cpp" />
-    <ClCompile Include="GeometryGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="resource.h">
@@ -71,5 +67,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

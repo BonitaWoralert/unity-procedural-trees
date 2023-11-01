@@ -3,6 +3,7 @@
 #include "Structures.h"
 
 #include <windowsx.h>
+#include <GeometricPrimitive.h>
 
 namespace
 {
@@ -83,6 +84,7 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 	{
         return E_FAIL;
 	}
+
 
     RECT rc;
     GetClientRect(_hWnd, &rc);
@@ -481,6 +483,7 @@ void Application::Update()
     // Animate meshes! 
     //
     
+    
     //cube
     XMStoreFloat4x4(&_world3, XMMatrixRotationY(t) * XMMatrixTranslation(0.0f, 0.8f, -0.3f));
     //sphere
@@ -488,6 +491,7 @@ void Application::Update()
         * XMMatrixScaling(0.5f, 0.5f, 0.5f) * XMMatrixRotationRollPitchYaw(0.5f,0.0f,0.6f));
     //donut
     XMStoreFloat4x4(&_world, XMMatrixRotationY(t) * XMMatrixTranslation(0.0f, -1.2f, 0.0f));
+    
 }
 
 void Application::Draw()
@@ -545,32 +549,19 @@ void Application::Draw()
     _pImmediateContext->PSSetShader(_pPixelShader, nullptr, 0);//set pixel shader
     _pImmediateContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
 
-    //mesh 1
-    _pImmediateContext->IASetVertexBuffers(0, 1, &_Mesh1.VertexBuffer, &_Mesh1.VBStride, &_Mesh1.VBOffset);
-    _pImmediateContext->IASetIndexBuffer(_Mesh1.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-    world = XMLoadFloat4x4(&_world3);
-    cb.mWorld = XMMatrixTranspose(world);
-    _pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-    //finally, draw obj 
-    _pImmediateContext->DrawIndexed(_Mesh1.IndexCount, 0, 0);
 
-    //mesh2
-    _pImmediateContext->IASetVertexBuffers(0, 1, &_Mesh2.VertexBuffer, &_Mesh2.VBStride, &_Mesh2.VBOffset);
-    _pImmediateContext->IASetIndexBuffer(_Mesh2.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+    //geometric primitive tests
+    
+    //cylinder
+    std::unique_ptr<GeometricPrimitive> shape;
+
+    shape = GeometricPrimitive::CreateCylinder(_pImmediateContext, 1.0f, 0.1f, 32, false);
+    shape->Draw(world, view, projection, Colors::SandyBrown);
+    //dodecahedron
     world = XMLoadFloat4x4(&_world2);
-    cb.mWorld = XMMatrixTranspose(world);
-    _pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-    //finally, draw obj 
-    _pImmediateContext->DrawIndexed(_Mesh2.IndexCount, 0, 0);
+    shape = GeometricPrimitive::CreateDodecahedron(_pImmediateContext, 1);
+    shape->Draw(world, view, projection, Colors::CornflowerBlue);
 
-    //mesh3
-    _pImmediateContext->IASetVertexBuffers(0, 1, &_Mesh3.VertexBuffer, &_Mesh3.VBStride, &_Mesh3.VBOffset);
-    _pImmediateContext->IASetIndexBuffer(_Mesh3.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-    world = XMLoadFloat4x4(&_world);
-    cb.mWorld = XMMatrixTranspose(world);
-    _pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-    //finally, draw obj 
-    _pImmediateContext->DrawIndexed(_Mesh3.IndexCount, 0, 0);
 
     // Present our back buffer to our front buffer
     //
@@ -605,4 +596,3 @@ void Application::OnMouseMove(WPARAM btnState, int x, int y)
     mLastMousePos.x = x;
     mLastMousePos.y = y;
 }
-

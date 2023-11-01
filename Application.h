@@ -8,6 +8,9 @@
 #include "resource.h"
 #include "OBJLoader.h"
 #include "Camera.h"
+
+
+
 using namespace DirectX;
 
 class Application

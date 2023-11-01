@@ -17,6 +17,12 @@ struct MeshData
 	UINT IndexCount;
 };
 
+struct Vertex
+{
+	XMFLOAT3 Pos;
+	XMFLOAT4 Color;
+};
+
 struct SimpleVertex
 {
 	XMFLOAT3 Pos;
