@@ -3,7 +3,6 @@
 #include "Structures.h"
 
 #include <windowsx.h>
-#include <GeometricPrimitive.h>
 
 namespace
 {
@@ -122,24 +121,6 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
     _camera = new Camera();
     _camera->SetPosition(0.0f, 0.0f, -3.0f);
 
-
-    //load 3d model! 
-
-    //3ds max object
-    //_Mesh2 = OBJLoader::Load("3ds/torusKnot.obj", _pd3dDevice);
-
-    //blender object
-    _Mesh1 = OBJLoader::Load("Blender/cube.obj", _pd3dDevice, false);
-
-    _Mesh2 = OBJLoader::Load("Blender/sphere.obj", _pd3dDevice, false);
-
-    _Mesh3 = OBJLoader::Load("Blender/donut.obj", _pd3dDevice, false);
-
-
-    //loading textures
-    CreateDDSTextureFromFile(_pd3dDevice, L"Textures/Watermelon_COLOR.dds", nullptr, &_pTextureRV);
-    _pImmediateContext->PSSetShaderResources(0, 1, &_pTextureRV);
-
     //defining sampler
     D3D11_SAMPLER_DESC sampDesc;
     ZeroMemory(&sampDesc, sizeof(sampDesc));
@@ -203,12 +184,29 @@ HRESULT Application::InitShadersAndInputLayout()
         return hr;
 
     // Define the input layout
+    /*
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-	};
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+    };
+    */
+
+    // Position in VB#0, NORMAL in VB#1, TEXCOORD in VB#2
+    const D3D11_INPUT_ELEMENT_DESC layout[] =
+    {
+        { "SV_Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL",      0, DXGI_FORMAT_R32G32B32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD",    0, DXGI_FORMAT_R32G32_FLOAT,    2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+    };
+
+    /*
+    ID3D11Buffer* vbs[3] = { m_positionVB.Get(), m_normalVB.Get(), m_texcoordVB.Get() };
+    UINT strides[3] = { sizeof(float) * 3, sizeof(float) * 3, sizeof(float) * 2 };
+    UINT offsets[3] = {};
+    _pImmediateContext->IASetVertexBuffers(0, 3, vbs, strides, offsets);
+    */
 
 	UINT numElements = ARRAYSIZE(layout);
 
@@ -483,11 +481,10 @@ void Application::Update()
     // Animate meshes! 
     //
     
-    
     //cube
     XMStoreFloat4x4(&_world3, XMMatrixRotationY(t) * XMMatrixTranslation(0.0f, 0.8f, -0.3f));
     //sphere
-    XMStoreFloat4x4(&_world2, XMMatrixRotationZ(t) * XMMatrixTranslation(7.0f, 0.0f, 0.0f) * XMLoadFloat4x4(&_world3) 
+    XMStoreFloat4x4(&_world2, XMMatrixRotationZ(t) * XMMatrixTranslation(3.0f, 0.0f, 0.0f) * XMLoadFloat4x4(&_world3) 
         * XMMatrixScaling(0.5f, 0.5f, 0.5f) * XMMatrixRotationRollPitchYaw(0.5f,0.0f,0.6f));
     //donut
     XMStoreFloat4x4(&_world, XMMatrixRotationY(t) * XMMatrixTranslation(0.0f, -1.2f, 0.0f));
@@ -550,16 +547,22 @@ void Application::Draw()
     _pImmediateContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
 
 
-    //geometric primitive tests
-    
-    //cylinder
-    std::unique_ptr<GeometricPrimitive> shape;
 
+    //geometric primitive tests
+    GeometricPrimitive::VertexCollection vertices;
+    GeometricPrimitive::IndexCollection indices;
+    GeometricPrimitive::CreateSphere(vertices, indices, 1.0f, 16, false);
+
+    custom = GeometricPrimitive::CreateCustom(_pImmediateContext, vertices, indices);
+    custom->Draw(world, view, projection, Colors::LimeGreen);
+
+    //cylinder
+    world = XMLoadFloat4x4(&_world3);
     shape = GeometricPrimitive::CreateCylinder(_pImmediateContext, 1.0f, 0.1f, 32, false);
     shape->Draw(world, view, projection, Colors::SandyBrown);
-    //dodecahedron
+    //torus
     world = XMLoadFloat4x4(&_world2);
-    shape = GeometricPrimitive::CreateDodecahedron(_pImmediateContext, 1);
+    shape = GeometricPrimitive::CreateTorus(_pImmediateContext, 1.0f, 0.333f, 32, false);
     shape->Draw(world, view, projection, Colors::CornflowerBlue);
 
 

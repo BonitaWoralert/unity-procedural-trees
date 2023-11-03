@@ -9,6 +9,7 @@
 #include "OBJLoader.h"
 #include "Camera.h"
 
+#include <GeometricPrimitive.h>
 
 
 using namespace DirectX;
@@ -78,6 +79,9 @@ private:
 	FLOAT SpecularPower; //Power to raise specular falloff by
 	XMFLOAT3 EyeWorldPos; //Camera's eye position in the world
 
+	//prim geo
+	std::unique_ptr<GeometricPrimitive> shape;
+	std::unique_ptr<GeometricPrimitive> custom;
 public:
 	Application();
 	~Application();
