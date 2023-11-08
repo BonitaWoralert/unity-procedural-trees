@@ -115,6 +115,15 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 	// Initialize the world matrix
 	XMStoreFloat4x4(&_world, XMMatrixIdentity());
     XMStoreFloat4x4(&_world2, XMMatrixIdentity());
+    XMStoreFloat4x4(&_world3, XMMatrixIdentity());
+
+    //tree crown
+    GeometricPrimitive::CreateSphere(crownVertices, crownIndices, 1.0f, 3, false);
+
+    for (int i = 0; i < 28; i++)
+    {
+        XMStoreFloat4x4(&_attractionPoints[i], XMMatrixIdentity() * XMMatrixTranslation(crownVertices[i].position.x, crownVertices[i].position.y, crownVertices[i].position.z));
+    }
 
     //initialise camera
     //_camera = new Camera(XMFLOAT3(0.0f, 0.0f, -3.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.01f, 100.0f);
@@ -482,12 +491,12 @@ void Application::Update()
     //
     
     //cube
-    XMStoreFloat4x4(&_world3, XMMatrixRotationY(t) * XMMatrixTranslation(0.0f, 0.8f, -0.3f));
+    //XMStoreFloat4x4(&_world3, XMMatrixRotationY(t) * XMMatrixTranslation(0.0f, 0.8f, -0.3f));
     //sphere
-    XMStoreFloat4x4(&_world2, XMMatrixRotationZ(t) * XMMatrixTranslation(3.0f, 0.0f, 0.0f) * XMLoadFloat4x4(&_world3) 
-        * XMMatrixScaling(0.5f, 0.5f, 0.5f) * XMMatrixRotationRollPitchYaw(0.5f,0.0f,0.6f));
+    //XMStoreFloat4x4(&_world2, XMMatrixRotationZ(t) * XMMatrixTranslation(3.0f, 0.0f, 0.0f) * XMLoadFloat4x4(&_world3) 
+    //    * XMMatrixScaling(0.5f, 0.5f, 0.5f) * XMMatrixRotationRollPitchYaw(0.5f,0.0f,0.6f));
     //donut
-    XMStoreFloat4x4(&_world, XMMatrixRotationY(t) * XMMatrixTranslation(0.0f, -1.2f, 0.0f));
+    //XMStoreFloat4x4(&_world, XMMatrixRotationY(t) * XMMatrixTranslation(0.0f, -1.2f, 0.0f));
     
 }
 
@@ -546,16 +555,18 @@ void Application::Draw()
     _pImmediateContext->PSSetShader(_pPixelShader, nullptr, 0);//set pixel shader
     _pImmediateContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
 
+    //tree crown
+    custom = GeometricPrimitive::CreateCustom(_pImmediateContext, crownVertices, crownIndices);
+    custom->Draw(world, view, projection, Colors::LimeGreen, nullptr, true);
 
+    for (int i = 0; i < 28; i++)
+    {
+        world = XMLoadFloat4x4(&_attractionPoints[i]);
+        shape = GeometricPrimitive::CreateSphere(_pImmediateContext, 0.1f, 16, false);
+        shape->Draw(world, view, projection, Colors::White);
+    }
 
-    //geometric primitive tests
-    GeometricPrimitive::VertexCollection vertices;
-    GeometricPrimitive::IndexCollection indices;
-    GeometricPrimitive::CreateSphere(vertices, indices, 1.0f, 16, false);
-
-    custom = GeometricPrimitive::CreateCustom(_pImmediateContext, vertices, indices);
-    custom->Draw(world, view, projection, Colors::LimeGreen);
-
+    /*
     //cylinder
     world = XMLoadFloat4x4(&_world3);
     shape = GeometricPrimitive::CreateCylinder(_pImmediateContext, 1.0f, 0.1f, 32, false);
@@ -564,6 +575,7 @@ void Application::Draw()
     world = XMLoadFloat4x4(&_world2);
     shape = GeometricPrimitive::CreateTorus(_pImmediateContext, 1.0f, 0.333f, 32, false);
     shape->Draw(world, view, projection, Colors::CornflowerBlue);
+    */
 
 
     // Present our back buffer to our front buffer

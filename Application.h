@@ -30,6 +30,7 @@ private:
 	ID3D11InputLayout*      _pVertexLayout;
 	ID3D11Buffer*           _pConstantBuffer;
 	XMFLOAT4X4              _world, _world2, _world3; //worlds for 3 different .obj files
+	XMFLOAT4X4				_attractionPoints[28];
 
 	//wireframe + solid states
 	ID3D11RasterizerState* _wireFrame;
@@ -47,6 +48,9 @@ private:
 	MeshData _Mesh1;
 	MeshData _Mesh2;
 	MeshData _Mesh3;
+
+	GeometricPrimitive::VertexCollection crownVertices;
+	GeometricPrimitive::IndexCollection crownIndices;
 
 	//camera
 	Camera* _camera;
