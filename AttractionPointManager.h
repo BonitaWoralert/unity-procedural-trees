@@ -25,8 +25,6 @@ public:
 	bool EnteredInfluenceDist();
 
 	void AddPoint(XMFLOAT4X4 matrix, XMFLOAT3 position);
-	XMFLOAT4X4 GetPointMatrix(int i) { return _attractionPoints[i]._matrix; }
-	XMFLOAT3 GetPointPos(int i) { return _attractionPoints[i]._position; }
 	Point GetPoint(int i) { return _attractionPoints[i]; }
 };
 

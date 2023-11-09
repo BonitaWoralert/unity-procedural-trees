@@ -84,7 +84,6 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
         return E_FAIL;
 	}
 
-
     RECT rc;
     GetClientRect(_hWnd, &rc);
     _WindowWidth = rc.right - rc.left;
@@ -264,7 +263,7 @@ HRESULT Application::InitWindow(HINSTANCE hInstance, int nCmdShow)
     _hInst = hInstance;
     RECT rc = {0, 0, 640, 480};
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-    _hWnd = CreateWindow(L"TutorialWindowClass", L"DX11 Framework", WS_OVERLAPPEDWINDOW,
+    _hWnd = CreateWindow(L"TutorialWindowClass", L"Plant Generator", WS_OVERLAPPEDWINDOW,
                          CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
                          nullptr);
     if (!_hWnd)
@@ -572,7 +571,7 @@ void Application::Draw()
     for (int i = 0; i < crownVertices.size(); i++)
     {
         //get all points from the manager
-        world = XMLoadFloat4x4(&_attractionPointManager->GetPointMatrix(i));
+        world = XMLoadFloat4x4(&_attractionPointManager->GetPoint(i)._matrix);
         //draw shape for each point
         shape = GeometricPrimitive::CreateBox(_pImmediateContext, XMFLOAT3(0.05f, 0.05f, 0.05f), false);
         shape->Draw(world, view, projection, Colors::DarkViolet);

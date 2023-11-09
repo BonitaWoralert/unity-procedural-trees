@@ -33,8 +33,6 @@ private:
 	
 	//attraction points
 	AttractionPointManager* _attractionPointManager;
-	
-	//std::vector<XMFLOAT4X4> _attractionPoints;
 
 	//wireframe + solid states
 	ID3D11RasterizerState* _wireFrame;
