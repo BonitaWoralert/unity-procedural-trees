@@ -8,9 +8,9 @@
 #include "resource.h"
 #include "OBJLoader.h"
 #include "Camera.h"
+#include "AttractionPoint.h"
 
 #include <GeometricPrimitive.h>
-#include <vector>
 
 using namespace DirectX;
 
@@ -31,7 +31,10 @@ private:
 	ID3D11Buffer*           _pConstantBuffer;
 	XMFLOAT4X4              _world, _world2, _world3; //worlds for 3 different .obj files
 	
-	std::vector<XMFLOAT4X4> _attractionPoints;
+	//attraction points
+	AttractionPoint* _attractionPointManager;
+	
+	//std::vector<XMFLOAT4X4> _attractionPoints;
 
 	//wireframe + solid states
 	ID3D11RasterizerState* _wireFrame;

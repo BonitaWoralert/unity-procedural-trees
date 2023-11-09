@@ -103,8 +103,6 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
     SpecularPower = 10.0f; //Power to raise specular falloff by
     EyeWorldPos = XMFLOAT3(0.0f,0.0f,-3.0f); //Camera's eye position in the world
 
-    
-
     if (FAILED(InitDevice()))
     {
         Cleanup();
@@ -119,14 +117,15 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 
     //tree crown
     GeometricPrimitive::CreateSphere(crownVertices, crownIndices, 1.0f, 8, false);
-    //GeometricPrimitive::CreateDodecahedron(crownVertices, crownIndices, 1.0f, false);
+
+    //create attraction points
+    _attractionPointManager = new AttractionPoint();
 
     for (int i = 0; i < crownVertices.size(); i++)
     {
         XMFLOAT4X4 j;
         XMStoreFloat4x4(&j, XMMatrixIdentity() * XMMatrixTranslation(crownVertices[i].position.x, crownVertices[i].position.y, crownVertices[i].position.z));
-        _attractionPoints.push_back(j);
-        //XMStoreFloat4x4(&_attractionPoints[i], XMMatrixIdentity() * XMMatrixTranslation(crownVertices[i].position.x, crownVertices[i].position.y, crownVertices[i].position.z));
+        _attractionPointManager->_points.push_back(j);
     }
 
     //initialise camera
@@ -565,7 +564,7 @@ void Application::Draw()
 
     for (int i = 0; i < crownVertices.size(); i++)
     {
-        world = XMLoadFloat4x4(&_attractionPoints[i]);
+        world = XMLoadFloat4x4(&_attractionPointManager->_points[i]);
         shape = GeometricPrimitive::CreateBox(_pImmediateContext, XMFLOAT3(0.05f, 0.05f, 0.05f), false);
         //shape = GeometricPrimitive::CreateSphere(_pImmediateContext, 0.1f, 16, false);
         shape->Draw(world, view, projection, Colors::DarkViolet);

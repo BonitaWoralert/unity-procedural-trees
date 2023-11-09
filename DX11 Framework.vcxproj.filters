@@ -19,6 +19,9 @@
     <ClInclude Include="OBJLoader.h" />
     <ClInclude Include="Structures.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="AttractionPoint.h" />
+    <ClInclude Include="AttractionPointManager.h" />
+    <ClInclude Include="TreeCrown.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
@@ -26,6 +29,9 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="OBJLoader.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="AttractionPoint.cpp" />
+    <ClCompile Include="AttractionPointManager.cpp" />
+    <ClCompile Include="TreeCrown.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="resource.h">
