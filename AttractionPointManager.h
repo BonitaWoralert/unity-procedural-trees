@@ -4,19 +4,29 @@
 
 using namespace DirectX;
 
+struct Point
+{
+	XMFLOAT4X4 _matrix;
+	XMFLOAT3 _position;
+};
+
 class AttractionPointManager
 {
 private:
 	float influenceDist;
 	float killDist;
+	std::vector<Point> _attractionPoints;
 public:
 	AttractionPointManager();
 	~AttractionPointManager();
 
-	std::vector<XMFLOAT4X4> _points;
-
+	void FindNearestBranch();
 	bool EnteredKillDist(XMFLOAT4X4 point, XMFLOAT3 branchPosition); //check if branch is in range, if true then delete point
 	bool EnteredInfluenceDist();
-	void CreatePoints();
+
+	void AddPoint(XMFLOAT4X4 matrix, XMFLOAT3 position);
+	XMFLOAT4X4 GetPointMatrix(int i) { return _attractionPoints[i]._matrix; }
+	XMFLOAT3 GetPointPos(int i) { return _attractionPoints[i]._position; }
+	Point GetPoint(int i) { return _attractionPoints[i]; }
 };
 

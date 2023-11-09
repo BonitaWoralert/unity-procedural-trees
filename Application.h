@@ -8,7 +8,7 @@
 #include "resource.h"
 #include "OBJLoader.h"
 #include "Camera.h"
-#include "AttractionPoint.h"
+#include "AttractionPointManager.h"
 
 #include <GeometricPrimitive.h>
 
@@ -32,7 +32,7 @@ private:
 	XMFLOAT4X4              _world, _world2, _world3; //worlds for 3 different .obj files
 	
 	//attraction points
-	AttractionPoint* _attractionPointManager;
+	AttractionPointManager* _attractionPointManager;
 	
 	//std::vector<XMFLOAT4X4> _attractionPoints;
 

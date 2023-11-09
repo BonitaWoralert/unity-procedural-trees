@@ -119,13 +119,17 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
     GeometricPrimitive::CreateSphere(crownVertices, crownIndices, 1.0f, 8, false);
 
     //create attraction points
-    _attractionPointManager = new AttractionPoint();
+    _attractionPointManager = new AttractionPointManager();
 
     for (int i = 0; i < crownVertices.size(); i++)
     {
-        XMFLOAT4X4 j;
-        XMStoreFloat4x4(&j, XMMatrixIdentity() * XMMatrixTranslation(crownVertices[i].position.x, crownVertices[i].position.y, crownVertices[i].position.z));
-        _attractionPointManager->_points.push_back(j);
+        //position of our point
+        XMFLOAT3 k = XMFLOAT3(crownVertices[i].position.x, crownVertices[i].position.y, crownVertices[i].position.z);
+        //create matrix for our point       
+        XMFLOAT4X4 j; 
+        XMStoreFloat4x4(&j, XMMatrixIdentity() * XMMatrixTranslation(k.x,k.y,k.z));
+        //add point to manager
+        _attractionPointManager->AddPoint(j, k);
     }
 
     //initialise camera
@@ -456,6 +460,8 @@ void Application::Cleanup()
     if (_depthStencilView) _depthStencilView->Release();
     if (_pTextureRV) _pTextureRV->Release();
     if (_pSamplerLinear) _pSamplerLinear->Release();
+    delete _camera;
+    delete _attractionPointManager;
 }
 
 void Application::Update()
@@ -562,25 +568,15 @@ void Application::Draw()
     custom = GeometricPrimitive::CreateCustom(_pImmediateContext, crownVertices, crownIndices);
     custom->Draw(world, view, projection, Colors::LimeGreen, nullptr, true);
 
+    //for all verts in crown
     for (int i = 0; i < crownVertices.size(); i++)
     {
-        world = XMLoadFloat4x4(&_attractionPointManager->_points[i]);
+        //get all points from the manager
+        world = XMLoadFloat4x4(&_attractionPointManager->GetPointMatrix(i));
+        //draw shape for each point
         shape = GeometricPrimitive::CreateBox(_pImmediateContext, XMFLOAT3(0.05f, 0.05f, 0.05f), false);
-        //shape = GeometricPrimitive::CreateSphere(_pImmediateContext, 0.1f, 16, false);
         shape->Draw(world, view, projection, Colors::DarkViolet);
     }
-
-    /*
-    //cylinder
-    world = XMLoadFloat4x4(&_world3);
-    shape = GeometricPrimitive::CreateCylinder(_pImmediateContext, 1.0f, 0.1f, 32, false);
-    shape->Draw(world, view, projection, Colors::SandyBrown);
-    //torus
-    world = XMLoadFloat4x4(&_world2);
-    shape = GeometricPrimitive::CreateTorus(_pImmediateContext, 1.0f, 0.333f, 32, false);
-    shape->Draw(world, view, projection, Colors::CornflowerBlue);
-    */
-
 
     // Present our back buffer to our front buffer
     //
