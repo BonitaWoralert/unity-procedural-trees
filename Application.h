@@ -10,7 +10,7 @@
 #include "Camera.h"
 
 #include <GeometricPrimitive.h>
-
+#include <vector>
 
 using namespace DirectX;
 
@@ -30,7 +30,8 @@ private:
 	ID3D11InputLayout*      _pVertexLayout;
 	ID3D11Buffer*           _pConstantBuffer;
 	XMFLOAT4X4              _world, _world2, _world3; //worlds for 3 different .obj files
-	XMFLOAT4X4				_attractionPoints[28];
+	
+	std::vector<XMFLOAT4X4> _attractionPoints;
 
 	//wireframe + solid states
 	ID3D11RasterizerState* _wireFrame;

@@ -118,11 +118,14 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
     XMStoreFloat4x4(&_world3, XMMatrixIdentity());
 
     //tree crown
-    GeometricPrimitive::CreateSphere(crownVertices, crownIndices, 1.0f, 3, false);
-
-    for (int i = 0; i < 28; i++)
+    GeometricPrimitive::CreateSphere(crownVertices, crownIndices, 1.0f, 16, false);
+    
+    for (int i = 0; i < crownVertices.size(); i++)
     {
-        XMStoreFloat4x4(&_attractionPoints[i], XMMatrixIdentity() * XMMatrixTranslation(crownVertices[i].position.x, crownVertices[i].position.y, crownVertices[i].position.z));
+        XMFLOAT4X4 j;
+        XMStoreFloat4x4(&j, XMMatrixIdentity() * XMMatrixTranslation(crownVertices[i].position.x, crownVertices[i].position.y, crownVertices[i].position.z));
+        _attractionPoints.push_back(j);
+        //XMStoreFloat4x4(&_attractionPoints[i], XMMatrixIdentity() * XMMatrixTranslation(crownVertices[i].position.x, crownVertices[i].position.y, crownVertices[i].position.z));
     }
 
     //initialise camera
@@ -559,11 +562,12 @@ void Application::Draw()
     custom = GeometricPrimitive::CreateCustom(_pImmediateContext, crownVertices, crownIndices);
     custom->Draw(world, view, projection, Colors::LimeGreen, nullptr, true);
 
-    for (int i = 0; i < 28; i++)
+    for (int i = 0; i < crownVertices.size(); i++)
     {
         world = XMLoadFloat4x4(&_attractionPoints[i]);
-        shape = GeometricPrimitive::CreateSphere(_pImmediateContext, 0.1f, 16, false);
-        shape->Draw(world, view, projection, Colors::White);
+        shape = GeometricPrimitive::CreateBox(_pImmediateContext, XMFLOAT3(0.05f, 0.05f, 0.05f), false);
+        //shape = GeometricPrimitive::CreateSphere(_pImmediateContext, 0.1f, 16, false);
+        shape->Draw(world, view, projection, Colors::DarkViolet);
     }
 
     /*
