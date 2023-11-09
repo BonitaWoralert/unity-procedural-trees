@@ -118,8 +118,9 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
     XMStoreFloat4x4(&_world3, XMMatrixIdentity());
 
     //tree crown
-    GeometricPrimitive::CreateSphere(crownVertices, crownIndices, 1.0f, 16, false);
-    
+    GeometricPrimitive::CreateSphere(crownVertices, crownIndices, 1.0f, 8, false);
+    //GeometricPrimitive::CreateDodecahedron(crownVertices, crownIndices, 1.0f, false);
+
     for (int i = 0; i < crownVertices.size(); i++)
     {
         XMFLOAT4X4 j;
@@ -480,13 +481,13 @@ void Application::Update()
 
     //control camera
     if (GetAsyncKeyState('W') & 0x8000)
-        _camera->Walk(0.0004f * t);
+        _camera->Walk(0.0005f * t);
     if (GetAsyncKeyState('S') & 0x8000)
-        _camera->Walk(-0.0004f * t);
+        _camera->Walk(-0.0005f * t);
     if (GetAsyncKeyState('A') & 0x8000)
-        _camera->Strafe(-0.0004f * t);
+        _camera->Strafe(-0.0005f * t);
     if (GetAsyncKeyState('D') & 0x8000)
-        _camera->Strafe(0.0004f * t);
+        _camera->Strafe(0.0005f * t);
 
 
     //
