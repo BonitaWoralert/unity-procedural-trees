@@ -19,34 +19,57 @@ public class GenerateShape : MonoBehaviour
 
 
     [Header("Crown Variables (sphere)")]
-    [SerializeField][Range(0,25)] private float radius;
-    [SerializeField][Range(0,100)] private int sliceCount, stackCount;
+    [SerializeField][Range(0,25)] private float radius = 8;
+    [SerializeField][Range(0,100)] private int sliceCount = 10, stackCount = 10;
 
     //attraction points
     private List<Vector3> attractionPoints = new List<Vector3>();
     [Header("Attraction Points")]
-    [SerializeField][Range(0, 10)] private float killDistance;
-    [SerializeField][Range(0,10)]private float influenceDistance;
-    
-    //branches
+    [SerializeField][Range(0, 10)] private float killDistance = 1f;
+    [SerializeField][Range(0,10)]private float influenceDistance = 2f;
 
+    //branches
+    struct Branch
+    {
+        public Vector3 startPos;
+        public Vector3 endPos;
+        public Vector3 direction;
+        public List<Vector3> pointsInRange;
+
+        public Branch(Vector3 startPos, Vector3 endPos, Vector3 direction)
+        {
+            this.startPos = startPos; this.endPos = endPos; this.direction = direction;
+        }
+    }
+
+    [Header("Branches")]
+    [SerializeField] private float branchLength = 0.2f;
+    [SerializeField] private List<Branch> branches = new List<Branch>();
+    [SerializeField] private List<Branch> newBranches = new List<Branch>();
+
+    
 
     private void Awake()
     {
         GetComponent<MeshFilter>().mesh = mesh = new Mesh();
         mesh.name = "sphere";
 
-        verticesList.Add(new Vector3(0, radius, 0));
-        normalList.Add(new Vector3(0,1,0));
-
         DrawSphere();
         GenerateAttractionPoints();
+
+
+        Branch firstBranch;
+        firstBranch.startPos = Vector3.zero;
+
     }
 
     private void DrawSphere()
     {
         var phiStep = MathF.PI / stackCount;
         var thetaStep = 2.0f * MathF.PI / sliceCount;
+
+        verticesList.Add(new Vector3(0, radius, 0));
+        normalList.Add(new Vector3(0, 1, 0));
 
         for (int i = 1; i <= stackCount - 1; i++)
         {
@@ -153,5 +176,11 @@ public class GenerateShape : MonoBehaviour
             Gizmos.DrawWireSphere(attraction, influenceDistance);*/
         }
 
+        //draw branches
+        for (int i = 0; branches.Count > 0; i++)
+        {
+            Gizmos.color = Color.yellow;
+            
+        }
     }
 }
