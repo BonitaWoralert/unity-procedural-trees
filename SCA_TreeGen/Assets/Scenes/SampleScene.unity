@@ -249,8 +249,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   radius: 8
-  sliceCount: 10
-  stackCount: 10
+  sliceCount: 5
+  stackCount: 5
   killDistance: 1
   influenceDistance: 2
 --- !u!23 &922368467
@@ -312,7 +312,7 @@ Transform:
   m_GameObject: {fileID: 922368465}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 15, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

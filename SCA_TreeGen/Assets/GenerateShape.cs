@@ -6,21 +6,12 @@ using static UnityEngine.Mesh;
 using UnityEngine.UIElements;
 
 public class GenerateShape : MonoBehaviour
-{
-    //crown
-    private Mesh mesh;
-    private List<Vector3> verticesList = new List<Vector3>();
-    private List<int> triangleList= new List<int>();
-    private List<Vector3> normalList = new List<Vector3>();
-
-    private Vector3[] vertices;
-    private int[] triangles;
-    private Vector3[] normals;
-
-
+{ 
     [Header("Crown Variables (sphere)")]
     [SerializeField][Range(0,25)] private float radius = 8;
     [SerializeField][Range(0,100)] private int sliceCount = 10, stackCount = 10;
+    Mesh mesh;
+    List<Vector3> verticesList = new List<Vector3>();
 
     //attraction points
     private List<Vector3> attractionPoints = new List<Vector3>();
@@ -29,40 +20,93 @@ public class GenerateShape : MonoBehaviour
     [SerializeField][Range(0,10)]private float influenceDistance = 2f;
 
     //branches
+
+    [Header("Branches")]
+    [SerializeField] private List<Branch> branches = new List<Branch>();
+    [SerializeField] private List<Branch> newBranches = new List<Branch>();
+
     class Branch
     {
         public Vector3 startPos;
         public Vector3 endPos;
         public Vector3 direction;
-        public List<Vector3> pointsInRange;
+        public List<Vector3> pointsInRange = new List<Vector3>();
+        public Branch previousBranch;
+        public List<Branch> nextBranches = new List<Branch>();
+        public bool finishedGrowing;
+        public float branchLength = 0.5f;
 
-        public Branch(Vector3 startPos, Vector3 endPos, Vector3 direction)
+        public Branch(Vector3 startPos, Vector3 direction)
         {
-            this.startPos = startPos; this.endPos = endPos; this.direction = direction;
+            this.startPos = startPos; this.direction = direction;
+            endPos = startPos + (direction * branchLength);
         }
     }
 
-    [Header("Branches")]
-    [SerializeField] private float branchLength = 0.2f;
-    [SerializeField] private List<Branch> branches = new List<Branch>();
-    [SerializeField] private List<Branch> newBranches = new List<Branch>();
-
-    
-
-    private void Awake()
+    private void Start()
     {
-        GetComponent<MeshFilter>().mesh = mesh = new Mesh();
-        mesh.name = "sphere";
-
         DrawSphere();
         GenerateAttractionPoints();
 
-        Branch firstBranch = new Branch(Vector3.zero, new Vector3(0, branchLength, 0), Vector3.up);
+        //Branch firstBranch = new Branch(new Vector3(0,-9,0), new Vector3(0, branchLength-9, 0), Vector3.up);
+        Branch firstBranch = new Branch(new Vector3(0, -8, 0), Vector3.up);
         branches.Add(firstBranch);
+    }
+
+    private void Update()
+    {
+        foreach (Branch branch in newBranches)
+            branch.finishedGrowing = true;
+
+        for(int i = 0;i<attractionPoints.Count;i++)
+        {
+            foreach (Branch branch in branches)
+            {
+                if (Vector3.Distance(branch.endPos, attractionPoints[i]) < killDistance) //if a branch is in the kill distance
+                {
+                    Debug.Log("attraction point " + attractionPoints[i] + " has been removed.");
+                    attractionPoints.Remove(attractionPoints[i]); //remove that point
+                    break;
+                } 
+            }
+        }
+
+        /*if (Vector3.Distance(branch.endPos, points) < influenceDistance) //if there are any points in range of the branch then add to pointsInRange
+                {
+                    branch.pointsInRange.Add(points);
+                    for (int i = 0; i < branch.pointsInRange.Count; i++)
+                        Debug.Log(branch.pointsInRange[i]);
+                }*/
+
+        /*foreach (Branch branch in branches) //create new branches
+        {
+            Vector3 totalDir = Vector3.zero;
+            for(int i = 0;i < branch.pointsInRange.Count;i++)
+            {
+                totalDir += branch.pointsInRange[i];
+            }
+            totalDir.Normalize();
+
+            newBranches.Add(new Branch(branch.endPos, totalDir));
+        }
+
+        //add new branch to total branch thing 
+        branches.AddRange(newBranches);*/
     }
 
     private void DrawSphere()
     {
+        //crown
+        List<int> triangleList = new List<int>();
+        List<Vector3> normalList = new List<Vector3>();
+
+        Vector3[] vertices;
+        int[] triangles;
+        Vector3[] normals;
+
+    GetComponent<MeshFilter>().mesh = mesh = new Mesh();
+        mesh.name = "sphere";
+
         var phiStep = MathF.PI / stackCount;
         var thetaStep = 2.0f * MathF.PI / sliceCount;
 
@@ -177,7 +221,6 @@ public class GenerateShape : MonoBehaviour
         foreach (Branch branch in branches)
         {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(branch.startPos, branch.endPos);
             Gizmos.DrawWireSphere(branch.startPos, 0.2f);
             Gizmos.DrawWireSphere(branch.endPos, 0.2f);
         }
