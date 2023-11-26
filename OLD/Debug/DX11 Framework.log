@@ -1,0 +1,13 @@
+﻿  Application.cpp
+E:\gamedev\Misc Project\LSystems\GamesDevProject\Application.cpp(123,23): warning C4018: '<': signed/unsigned mismatch
+E:\gamedev\Misc Project\LSystems\GamesDevProject\Application.cpp(571,23): warning C4018: '<': signed/unsigned mismatch
+E:\gamedev\Misc Project\LSystems\GamesDevProject\Application.cpp(574,69): warning C4238: nonstandard extension used: class rvalue used as lvalue
+E:\gamedev\Misc Project\LSystems\GamesDevProject\Application.cpp(585,38): warning C4100: 'btnState': unreferenced formal parameter
+E:\gamedev\Misc Project\LSystems\GamesDevProject\Application.cpp(593,57): warning C4100: 'y': unreferenced formal parameter
+E:\gamedev\Misc Project\LSystems\GamesDevProject\Application.cpp(593,50): warning C4100: 'x': unreferenced formal parameter
+E:\gamedev\Misc Project\LSystems\GamesDevProject\Application.cpp(593,36): warning C4100: 'btnState': unreferenced formal parameter
+  AttractionPointManager.cpp
+  DX11 Framework.cpp
+  Generating Code...
+Application.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
+  DX11 Framework.vcxproj -> E:\gamedev\Misc Project\LSystems\GamesDevProject\Debug\DX11 Framework.exe

@@ -1,0 +1,7 @@
+E:\gamedev\semester-1-graphics-assignment-BonitaWoralert\Debug\DX11 Framework.exe
+E:\gamedev\testProj\Debug\DX11 Framework.exe
+E:\gamedev\Misc Project\LSystems\GamesDevProject\Debug\DX11 Framework.exe
+E:\gamedev\Misc Project\LSystems\GamesDevProject\Debug\DX11 Framework.vcxproj.CopyComplete
+E:\gamedev\Misc Project\LSystems\GamesDevProject\Debug\xapobaseredist.pdb
+E:\gamedev\Misc Project\LSystems\GamesDevProject\Debug\xaudio2_9redist.pdb
+E:\gamedev\Misc Project\LSystems\GamesDevProject\Debug\xaudio2_9redist.dll
