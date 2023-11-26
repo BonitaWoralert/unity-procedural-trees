@@ -29,7 +29,7 @@ public class GenerateShape : MonoBehaviour
     [SerializeField][Range(0,10)]private float influenceDistance = 2f;
 
     //branches
-    struct Branch
+    class Branch
     {
         public Vector3 startPos;
         public Vector3 endPos;
@@ -57,10 +57,8 @@ public class GenerateShape : MonoBehaviour
         DrawSphere();
         GenerateAttractionPoints();
 
-
-        Branch firstBranch;
-        firstBranch.startPos = Vector3.zero;
-
+        Branch firstBranch = new Branch(Vector3.zero, new Vector3(0, branchLength, 0), Vector3.up);
+        branches.Add(firstBranch);
     }
 
     private void DrawSphere()
@@ -160,8 +158,7 @@ public class GenerateShape : MonoBehaviour
     {
         //draw crown
         Gizmos.color = Color.green;
-        Gizmos.DrawWireMesh(mesh, Vector3.zero);
-
+        Gizmos.DrawWireMesh(mesh);
 
         //draw attraction points
         foreach (var attraction in attractionPoints)
@@ -177,10 +174,12 @@ public class GenerateShape : MonoBehaviour
         }
 
         //draw branches
-        for (int i = 0; branches.Count > 0; i++)
+        foreach (Branch branch in branches)
         {
             Gizmos.color = Color.yellow;
-            
+            Gizmos.DrawLine(branch.startPos, branch.endPos);
+            Gizmos.DrawWireSphere(branch.startPos, 0.2f);
+            Gizmos.DrawWireSphere(branch.endPos, 0.2f);
         }
     }
 }
