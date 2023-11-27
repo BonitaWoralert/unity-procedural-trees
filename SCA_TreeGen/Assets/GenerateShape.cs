@@ -16,7 +16,9 @@ public class GenerateShape : MonoBehaviour
     //attraction points
     private List<Vector3> attractionPoints = new List<Vector3>();
     [Header("Attraction Points")]
+    [SerializeField] private bool displayKillDistance = false;
     [SerializeField][Range(0, 10)] private float killDistance = 1f;
+    [SerializeField] private bool displayInfluenceDistance = false;
     [SerializeField][Range(0,10)]private float influenceDistance = 2f;
 
     //branches
@@ -209,12 +211,19 @@ public class GenerateShape : MonoBehaviour
         {
             Gizmos.color = Color.white;
             Gizmos.DrawWireSphere(attraction, 0.5f);
-            
+
             //draw influence + kill distance
-            /*Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(attraction, killDistance);
-            Gizmos.color = Color.blue;
-            Gizmos.DrawWireSphere(attraction, influenceDistance);*/
+            if (displayKillDistance == true)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawWireSphere(attraction, killDistance);
+            }
+            
+            if (displayInfluenceDistance == true) 
+            { 
+                Gizmos.color = Color.blue;
+                Gizmos.DrawWireSphere(attraction, influenceDistance);
+            }
         }
 
         //draw branches
