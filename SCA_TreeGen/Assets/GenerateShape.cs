@@ -11,6 +11,7 @@ public class GenerateShape : MonoBehaviour
 {
     [Header("Info")]
     [SerializeField] private int iterationCount = 0;
+    [SerializeField] private int maxIterations = 100;
     [SerializeField] int numOfBranches;
 
     [Header("Gizmos")]
@@ -34,7 +35,7 @@ public class GenerateShape : MonoBehaviour
         public Vector3 endPos;
         public Vector3 direction;
         public List<Vector3> pointsInRange = new List<Vector3>();
-        public float branchLength = 1.5f;
+        public float branchLength = 0.5f;
 
         public Branch(Vector3 startPos, Vector3 direction)
         {
@@ -75,107 +76,115 @@ public class GenerateShape : MonoBehaviour
 
     private void Update()
     {
-        iterationCount++;
-        numOfBranches = branches.Count;
-
-        //attraction points pick nearest branch node 
-        foreach(var a in attractionPoints)
+        //if not reached max iterations + there are still points
+        if(iterationCount < maxIterations && attractionPoints.Count > 0)
         {
+            iterationCount++;
+            numOfBranches = branches.Count;
+
+            //attraction points pick nearest branch node 
+            foreach(var a in attractionPoints)
+            {
+                foreach(Branch b in branches)
+                {
+                    //find distance between the point and the branch
+                    float distance = Vector3.Distance(b.endPos, a.position);
+                    //if its in influence distance and closer than current closest branch (or if theres no closest branch) then this branch is now closest
+                    if(distance < influenceDistance && a.closestBranch == null)
+                    {
+                        a.closestBranch = b;
+                        //Debug.Log("attraction point at " + a.position + " closest branch = " + b.endPos);
+                    }
+                    else if(distance < influenceDistance && distance < Vector3.Distance(a.position, a.closestBranch.endPos))
+                    {
+                        a.closestBranch = b;
+                        //Debug.Log("attraction point at " + a.position + " closest branch = " + b.endPos);
+                    }
+                }
+            }
+
+            //tell branches which points are affecting them
+            foreach(var a in attractionPoints)
+            {
+                if(a.closestBranch != null)
+                {
+                    currentAttractionPoints.Add(a);
+                    //a.closestBranch.pointsInRange.Clear(); //clear points in range
+                    a.closestBranch.pointsInRange.Add(a.position);
+                }
+            }
+
+            if(currentAttractionPoints.Count == 0 && iterationCount < 5) //if we cant reach a point in the first 5 iterations
+            {
+                //grow upwards
+                newBranches.Add(new Branch(branches.Last().endPos, Vector3.up));
+                Debug.Log("No point in range, growing upwards");
+                //later introduce randomisation so it doesn't just suddenly grow up
+            }
+            else if(currentAttractionPoints.Count == 0 && iterationCount > 5) //if we can't reach point after first 5, stop trying
+            {
+                iterationCount = 99999;
+            }
+
             foreach(Branch b in branches)
             {
-                //find distance between the point and the branch
-                float distance = Vector3.Distance(b.endPos, a.position);
-                //if its in influence distance and closer than current closest branch (or if theres no closest branch) then this branch is now closest
-                if(distance < influenceDistance && a.closestBranch == null)
+                if(b.pointsInRange.Count > 0) //if the branch has influence points
                 {
-                    a.closestBranch = b;
-                    //Debug.Log("attraction point at " + a.position + " closest branch = " + b.endPos);
-                }
-                else if(distance < influenceDistance && distance < Vector3.Distance(a.position, a.closestBranch.endPos))
-                {
-                    a.closestBranch = b;
-                    //Debug.Log("attraction point at " + a.position + " closest branch = " + b.endPos);
+                    //Debug.Log("Branch at " + b.endPos + " has " + b.pointsInRange.Count + " points in range");
+                    Vector3 newBranchDir = Vector3.zero;
+                    Vector3 branchToPoint;
+                    for(int i = 0; i < b.pointsInRange.Count;i++)
+                    {
+                        //get normalised vector from tree node to each influencing point
+                        branchToPoint = new Vector3(
+                            b.pointsInRange[i].x - b.endPos.x,
+                            b.pointsInRange[i].y - b.endPos.y,
+                            b.pointsInRange[i].z - b.endPos.z);
+
+                        branchToPoint.Normalize();
+                        //add together
+                        newBranchDir += branchToPoint;
+                    }
+                    //then normalize again
+                    newBranchDir.Normalize();
+
+                    //add new branches
+                    newBranches.Add(new Branch(b.endPos, newBranchDir));
+                    Debug.Log("New branch is being added: startPos = " + b.endPos + " \nDirection = " +  newBranchDir);
                 }
             }
-        }
 
-        //tell branches which points are affecting them
-        foreach(var a in attractionPoints)
-        {
-            if(a.closestBranch != null)
+            //add these new nodes, remove points, repeat.
+            branches.AddRange(newBranches);
+
+            foreach (Branch b in branches)
             {
-                currentAttractionPoints.Add(a);
-                //a.closestBranch.pointsInRange.Clear(); //clear points in range
-                a.closestBranch.pointsInRange.Add(a.position);
+                b.pointsInRange.Clear(); //clear points in range
+                //Debug.Log("points in range cleared");
             }
-        }
+            newBranches.Clear();
+            currentAttractionPoints.Clear();
 
-        if(currentAttractionPoints.Count == 0 && iterationCount < 5) //if we cant reach a point in the first 5 iterations
-        {
-            //grow upwards
-            newBranches.Add(new Branch(branches.Last().endPos, Vector3.up));
-            Debug.Log("No point in range, growing upwards");
-            //later introduce randomisation so it doesn't just suddenly grow up
-        }
 
-        foreach(Branch b in branches)
-        {
-            if(b.pointsInRange.Count > 0) //if the branch has influence points
+            //remove attraction points that have been reached
+            for (int i = 0; i < attractionPoints.Count; i++)
             {
-                //Debug.Log("Branch at " + b.endPos + " has " + b.pointsInRange.Count + " points in range");
-                Vector3 newBranchDir = Vector3.zero;
-                Vector3 branchToPoint;
-                for(int i = 0; i < b.pointsInRange.Count;i++)
+                //also reset closest branch
+                attractionPoints[i].closestBranch = null;
+                foreach (Branch branch in branches)
                 {
-                    //get normalised vector from tree node to each influencing point
-                    branchToPoint = new Vector3(
-                        b.pointsInRange[i].x - b.endPos.x,
-                        b.pointsInRange[i].y - b.endPos.y,
-                        b.pointsInRange[i].z - b.endPos.z);
-
-                    branchToPoint.Normalize();
-                    //add together
-                    newBranchDir += branchToPoint;
-                }
-                //then normalize again
-                newBranchDir.Normalize();
-
-                //add new branches
-                newBranches.Add(new Branch(b.endPos, newBranchDir));
-                Debug.Log("New branch is being added: startPos = " + b.endPos + " \nDirection = " +  newBranchDir);
-            }
-        }
-
-        //add these new nodes, remove points, repeat.
-        branches.AddRange(newBranches);
-
-        foreach (Branch b in branches)
-        {
-            b.pointsInRange.Clear(); //clear points in range
-            //Debug.Log("points in range cleared");
-        }
-        newBranches.Clear();
-        currentAttractionPoints.Clear();
-
-
-        //remove attraction points that have been reached
-        for (int i = 0; i < attractionPoints.Count; i++)
-        {
-            //also reset closest branch
-            attractionPoints[i].closestBranch = null;
-            foreach (Branch branch in branches)
-            {
-                if (Vector3.Distance(branch.endPos, attractionPoints[i].position) < killDistance) //if a branch is in the kill distance
-                {
-                    Debug.Log("attraction point at " + attractionPoints[i].position + " has been removed.");
-                    attractionPoints.Remove(attractionPoints[i]); //remove that point
-                    break;
+                    if (Vector3.Distance(branch.endPos, attractionPoints[i].position) < killDistance) //if a branch is in the kill distance
+                    {
+                        Debug.Log("attraction point at " + attractionPoints[i].position + " has been removed.");
+                        attractionPoints.Remove(attractionPoints[i]); //remove that point
+                        break;
+                    }
                 }
             }
+
+
+                //stop when all points removed / not in range
         }
-
-        //stop when all points removed / not in range
-
     }
 
     private void DrawSphere()
@@ -279,15 +288,16 @@ public class GenerateShape : MonoBehaviour
     private void GenerateAttractionPoints()
     {
         //Vertex method: Attraction points are placed at each vertex of the crown
+
         /*for (int i = 0; i < verticesList.Count; i++)
         {
             attractionPoints.Add(new AttractionPoints(verticesList[i]));
         }*/
+
         //Random method
         for (int i = 0; i < numOfAttractionPoints; i++)
         {
-            
-            //attractionPoints.Add(new AttractionPoints(new Vector3(Random.Range(-radius,radius),Random.Range(-radius, radius), Random.Range(-radius, radius))));
+            attractionPoints.Add(new AttractionPoints(Random.insideUnitSphere * radius));
         }
     }
 
