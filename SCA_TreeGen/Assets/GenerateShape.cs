@@ -157,12 +157,14 @@ public class GenerateShape : MonoBehaviour
             //add these new nodes, remove points, repeat.
             branches.AddRange(newBranches);
 
+
+            //clean up after iteration 
+
             foreach (Branch b in branches)
             {
-                b.pointsInRange.Clear(); //clear points in range
-                //Debug.Log("points in range cleared");
+                b.pointsInRange.Clear();
             }
-            newBranches.Clear();
+            newBranches.Clear(); 
             currentAttractionPoints.Clear();
 
 
@@ -181,11 +183,11 @@ public class GenerateShape : MonoBehaviour
                     }
                 }
             }
-
-
-                //stop when all points removed / not in range
         }
+        Debug.Log("Time from start to end = " + Time.time);
+        Debug.Break();
     }
+
 
     private void DrawSphere()
     {
