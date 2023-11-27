@@ -4,9 +4,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEngine.Mesh;
 using UnityEngine.UIElements;
+using Random = UnityEngine.Random;
+using System.Linq;
 
 public class GenerateShape : MonoBehaviour
 {
+    [Header("Info")]
+    [SerializeField] private int iterationCount = 0;
+    [SerializeField] int numOfBranches;
+
     [Header("Gizmos")]
     [SerializeField] private bool TogglePointsView = false;
 
@@ -21,7 +27,6 @@ public class GenerateShape : MonoBehaviour
     [Header("Branches")]
     private List<Branch> branches = new List<Branch>();
     private List<Branch> newBranches = new List<Branch>();
-    [SerializeField] int numOfBranches;
 
     class Branch
     {
@@ -46,6 +51,8 @@ public class GenerateShape : MonoBehaviour
     [SerializeField][Range(0, 10)] private float killDistance = 1f;
     [SerializeField] private bool displayInfluenceDistance = false;
     [SerializeField][Range(0, 10)] private float influenceDistance = 2f;
+    [SerializeField] private List<AttractionPoints> currentAttractionPoints = new List<AttractionPoints>();
+    [SerializeField] private int numOfAttractionPoints = 100;
 
     class AttractionPoints
     {
@@ -62,13 +69,13 @@ public class GenerateShape : MonoBehaviour
         DrawSphere();
         GenerateAttractionPoints();
 
-        //Branch firstBranch = new Branch(new Vector3(0,-9,0), new Vector3(0, branchLength-9, 0), Vector3.up);
         Branch firstBranch = new Branch(new Vector3(0, -11, 0), Vector3.up);
         branches.Add(firstBranch);
     }
 
     private void Update()
     {
+        iterationCount++;
         numOfBranches = branches.Count;
 
         //attraction points pick nearest branch node 
@@ -97,9 +104,18 @@ public class GenerateShape : MonoBehaviour
         {
             if(a.closestBranch != null)
             {
+                currentAttractionPoints.Add(a);
                 //a.closestBranch.pointsInRange.Clear(); //clear points in range
                 a.closestBranch.pointsInRange.Add(a.position);
             }
+        }
+
+        if(currentAttractionPoints.Count == 0 && iterationCount < 5) //if we cant reach a point in the first 5 iterations
+        {
+            //grow upwards
+            newBranches.Add(new Branch(branches.Last().endPos, Vector3.up));
+            Debug.Log("No point in range, growing upwards");
+            //later introduce randomisation so it doesn't just suddenly grow up
         }
 
         foreach(Branch b in branches)
@@ -108,11 +124,15 @@ public class GenerateShape : MonoBehaviour
             {
                 //Debug.Log("Branch at " + b.endPos + " has " + b.pointsInRange.Count + " points in range");
                 Vector3 newBranchDir = Vector3.zero;
-                Vector3 branchToPoint = Vector3.zero;
+                Vector3 branchToPoint;
                 for(int i = 0; i < b.pointsInRange.Count;i++)
                 {
                     //get normalised vector from tree node to each influencing point
-                    branchToPoint = b.pointsInRange[i] - b.endPos;
+                    branchToPoint = new Vector3(
+                        b.pointsInRange[i].x - b.endPos.x,
+                        b.pointsInRange[i].y - b.endPos.y,
+                        b.pointsInRange[i].z - b.endPos.z);
+
                     branchToPoint.Normalize();
                     //add together
                     newBranchDir += branchToPoint;
@@ -135,6 +155,7 @@ public class GenerateShape : MonoBehaviour
             //Debug.Log("points in range cleared");
         }
         newBranches.Clear();
+        currentAttractionPoints.Clear();
 
 
         //remove attraction points that have been reached
@@ -258,9 +279,15 @@ public class GenerateShape : MonoBehaviour
     private void GenerateAttractionPoints()
     {
         //Vertex method: Attraction points are placed at each vertex of the crown
-        for(int i = 0; i < verticesList.Count;  i++)
+        /*for (int i = 0; i < verticesList.Count; i++)
         {
             attractionPoints.Add(new AttractionPoints(verticesList[i]));
+        }*/
+        //Random method
+        for (int i = 0; i < numOfAttractionPoints; i++)
+        {
+            
+            //attractionPoints.Add(new AttractionPoints(new Vector3(Random.Range(-radius,radius),Random.Range(-radius, radius), Random.Range(-radius, radius))));
         }
     }
 
@@ -293,13 +320,19 @@ public class GenerateShape : MonoBehaviour
             }
         }
 
+
         //draw branches
-        foreach (Branch branch in branches)
+        /*foreach (Branch branch in branches)
         {
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(branch.startPos, 0.2f);
             Gizmos.color = Color.magenta;
             Gizmos.DrawWireSphere(branch.endPos, 0.2f);
+        }*/
+        foreach(Branch branch in branches)
+        {
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawLine(branch.startPos, branch.endPos);
         }
     }
 }
