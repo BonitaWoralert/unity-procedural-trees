@@ -251,7 +251,7 @@ MonoBehaviour:
   iterationCount: 0
   maxIterations: 100
   numOfBranches: 0
-  TogglePointsView: 0
+  TogglePointsView: 1
   radius: 7.5
   sliceCount: 10
   stackCount: 10
@@ -259,7 +259,7 @@ MonoBehaviour:
   killDistance: 0.7
   displayInfluenceDistance: 0
   influenceDistance: 2.37
-  numOfAttractionPoints: 300
+  numOfAttractionPoints: 700
 --- !u!23 &922368467
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -318,7 +318,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 922368465}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -8.5, y: 0, z: 5.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

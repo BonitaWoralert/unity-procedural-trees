@@ -63,10 +63,12 @@ public class GenerateShape : MonoBehaviour
         public AttractionPoints(Vector3 position)
         { this.position = position; }
     }
-    
+
+    float temp;
 
     private void Start()
     {
+        temp = Time.time;
         DrawSphere();
         GenerateAttractionPoints();
 
@@ -150,13 +152,12 @@ public class GenerateShape : MonoBehaviour
 
                     //add new branches
                     newBranches.Add(new Branch(b.endPos, newBranchDir));
-                    Debug.Log("New branch is being added: startPos = " + b.endPos + " \nDirection = " +  newBranchDir);
+                    //Debug.Log("New branch is being added: startPos = " + b.endPos + " \nDirection = " +  newBranchDir);
                 }
             }
 
             //add these new nodes, remove points, repeat.
             branches.AddRange(newBranches);
-
 
             //clean up after iteration 
 
@@ -173,21 +174,24 @@ public class GenerateShape : MonoBehaviour
             {
                 //also reset closest branch
                 attractionPoints[i].closestBranch = null;
+
                 foreach (Branch branch in branches)
                 {
                     if (Vector3.Distance(branch.endPos, attractionPoints[i].position) < killDistance) //if a branch is in the kill distance
                     {
-                        Debug.Log("attraction point at " + attractionPoints[i].position + " has been removed.");
+                        //Debug.Log("attraction point at " + attractionPoints[i].position + " has been removed.");
                         attractionPoints.Remove(attractionPoints[i]); //remove that point
                         break;
                     }
                 }
             }
         }
-        Debug.Log("Time from start to end = " + Time.time);
-        Debug.Break();
+        else
+        {
+            Debug.Log("Time from start to end = " + (Time.time - temp));
+            Debug.Break();
+        }
     }
-
 
     private void DrawSphere()
     {
@@ -309,25 +313,25 @@ public class GenerateShape : MonoBehaviour
         {
             //draw crown
             Gizmos.color = Color.green;
-            Gizmos.DrawWireMesh(mesh);
+            Gizmos.DrawWireMesh(mesh, transform.localPosition);
 
             //draw attraction points
             foreach (var attraction in attractionPoints)
             {
                 Gizmos.color = Color.white;
-                Gizmos.DrawWireSphere(attraction.position, 0.5f);
+                Gizmos.DrawWireSphere(transform.InverseTransformPoint(attraction.position), 0.5f);
 
                 //draw influence + kill distance
                 if (displayKillDistance == true)
                 {
                     Gizmos.color = Color.red;
-                    Gizmos.DrawWireSphere(attraction.position, killDistance);
+                    Gizmos.DrawWireSphere(transform.InverseTransformPoint(attraction.position), killDistance);
                 }
             
                 if (displayInfluenceDistance == true) 
                 { 
                     Gizmos.color = Color.blue;
-                    Gizmos.DrawWireSphere(attraction.position, influenceDistance);
+                    Gizmos.DrawWireSphere(transform.InverseTransformPoint(attraction.position), influenceDistance);
                 }
             }
         }
@@ -344,7 +348,7 @@ public class GenerateShape : MonoBehaviour
         foreach(Branch branch in branches)
         {
             Gizmos.color = Color.magenta;
-            Gizmos.DrawLine(branch.startPos, branch.endPos);
+            Gizmos.DrawLine(transform.InverseTransformPoint(branch.startPos), transform.InverseTransformPoint(branch.endPos));
         }
     }
 }
