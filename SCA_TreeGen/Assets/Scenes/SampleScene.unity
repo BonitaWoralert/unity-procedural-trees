@@ -248,13 +248,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c1b729995566864693c7b14364cff2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  TogglePointsView: 0
   radius: 7.5
   sliceCount: 10
   stackCount: 10
-  displayKillDistance: 1
+  numOfBranches: 0
+  displayKillDistance: 0
   killDistance: 1
-  displayInfluenceDistance: 1
-  influenceDistance: 2
+  displayInfluenceDistance: 0
+  influenceDistance: 3.71
 --- !u!23 &922368467
 MeshRenderer:
   m_ObjectHideFlags: 0
