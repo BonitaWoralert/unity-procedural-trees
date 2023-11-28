@@ -249,11 +249,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iterationCount: 0
-  maxIterations: 200
+  maxIterations: 3770
   numOfBranches: 0
-  timeBetweenIterations: 0.1
-  nextIteration: 0
-  TogglePointsView: 1
+  timeBetweenIterations: 0
+  TogglePointsView: 0
+  ShowOnlyDuplicates: 0
   radius: 7.5
   sliceCount: 10
   stackCount: 10
@@ -261,7 +261,7 @@ MonoBehaviour:
   killDistance: 0.7
   displayInfluenceDistance: 0
   influenceDistance: 2.37
-  numOfAttractionPoints: 700
+  numOfAttractionPoints: 3000
 --- !u!23 &922368467
 MeshRenderer:
   m_ObjectHideFlags: 0

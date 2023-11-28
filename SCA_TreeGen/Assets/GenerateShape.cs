@@ -14,11 +14,11 @@ public class GenerateShape : MonoBehaviour
     [SerializeField] private int maxIterations = 100;
     [SerializeField] private int numOfBranches = 0;
     [SerializeField] private float timeBetweenIterations = 1.0f;
-    [SerializeField] private float nextIteration = 0.0f;
-    private int duplicateBranches = 0;
+    private float nextIteration = 0.0f;
 
     [Header("Gizmos")]
     [SerializeField] private bool TogglePointsView = false;
+    [SerializeField] private bool ShowOnlyDuplicates = false;
 
     [Header("Crown Variables (sphere)")]
     [SerializeField][Range(0,25)] private float radius = 8;
@@ -31,6 +31,8 @@ public class GenerateShape : MonoBehaviour
     [Header("Branches")]
     private List<Branch> branches = new List<Branch>();
     private List<Branch> newBranches = new List<Branch>();
+    private List<Branch> duplicateBranches = new List<Branch>();
+    private int numOfBranchesAtBeginning = 0;
 
     class Branch
     {
@@ -39,11 +41,20 @@ public class GenerateShape : MonoBehaviour
         public Vector3 direction;
         public List<Vector3> pointsInRange = new List<Vector3>();
         public float branchLength = 0.5f;
+        public Branch parent;
+        public List<Branch> children = new List<Branch>();
 
+        public Branch(Branch parent, Vector3 direction)
+        {
+            startPos = parent.endPos; this.direction = direction; this.parent = parent;
+            endPos = startPos + (direction * branchLength);
+            parent.children.Add(this);
+        }
         public Branch(Vector3 startPos, Vector3 direction)
         {
             this.startPos = startPos; this.direction = direction;
             endPos = startPos + (direction * branchLength);
+            parent = null;
         }
     }
 
@@ -74,7 +85,7 @@ public class GenerateShape : MonoBehaviour
         DrawSphere();
         GenerateAttractionPoints();
 
-        Branch firstBranch = new Branch(new Vector3(0, -11, 0), Vector3.up);
+        Branch firstBranch = new Branch(new Vector3(0, -10, 0), Vector3.up);
         branches.Add(firstBranch);
     }
 
@@ -85,10 +96,11 @@ public class GenerateShape : MonoBehaviour
             nextIteration = Time.time + timeBetweenIterations;
         
             //if not reached max iterations + there are still points
-            if(iterationCount < maxIterations && attractionPoints.Count > 0 && duplicateBranches < 10)
+            if(iterationCount < maxIterations && attractionPoints.Count > 0)
             {
                 iterationCount++;
                 numOfBranches = branches.Count;
+                numOfBranchesAtBeginning = numOfBranches;
 
                 //attraction points pick nearest branch node 
                 foreach(var a in attractionPoints)
@@ -124,19 +136,20 @@ public class GenerateShape : MonoBehaviour
                 if(currentAttractionPoints.Count == 0 && iterationCount < 10) //if we cant reach a point in the first 10 iterations
                 {
                     //grow upwards
-                    newBranches.Add(new Branch(branches.Last().endPos, Vector3.up));
+                    newBranches.Add(new Branch(branches.Last(), Vector3.up));
                     //Debug.Log("No point in range, growing upwards");
 
                     //later introduce randomisation so it doesn't just suddenly grow up
                 }
-                else if(currentAttractionPoints.Count == 0 && iterationCount > 5) //if we can't reach point after first 5, stop trying
+                else if(currentAttractionPoints.Count == 0 && iterationCount > 10) //if we can't reach point after first 5, stop trying
                 {
                     iterationCount = 99999;
                 }
 
                 foreach(Branch b in branches)
                 {
-                    if(b.pointsInRange.Count > 0) //if the branch has influence points
+                    //Debug.Log(b.children.Count);
+                    if(b.pointsInRange.Count > 0 && b.children.Count <= 5) //if the branch has influence points and less than 5 children
                     {
                         //Debug.Log("Branch at " + b.endPos + " has " + b.pointsInRange.Count + " points in range");
                         Vector3 newBranchDir = Vector3.zero;
@@ -157,15 +170,16 @@ public class GenerateShape : MonoBehaviour
                         newBranchDir.Normalize();
 
                         //add new branches
-                        newBranches.Add(new Branch(b.endPos, newBranchDir));
+                        newBranches.Add(new Branch(b, newBranchDir));
 
                         //test code
-                        if (branches.Exists(x => x.endPos == newBranches.Last().endPos))
+                        /*if (branches.Exists(x => x.endPos == newBranches.Last().endPos))
                         {
+                            duplicateBranches.Add(new Branch(b, newBranchDir));
                             newBranches.Remove(newBranches.Last());
                             Debug.Log("not this branch!!");
-                            duplicateBranches++;
-                        }
+                        }*/
+
                         //Debug.Log("New branch is being added: startPos = " + b.endPos + " \nDirection = " +  newBranchDir + " endPos = " + newBranches.Last().endPos);
                     }
                 }
@@ -173,6 +187,27 @@ public class GenerateShape : MonoBehaviour
                 //add these new nodes, remove points, repeat.
                 branches.AddRange(newBranches);
 
+                List<int> pointsToDelete = new List<int>();
+                //remove attraction points that have been reached
+                //for (int i = 0; i < attractionPoints.Count; i++)
+                for (int i = attractionPoints.Count -1; i >= 0; i--)
+                {
+                    //also reset closest branch
+                    attractionPoints[i].closestBranch = null;
+
+                    foreach (Branch branch in newBranches)
+                    {
+                        if (Vector3.Distance(branch.endPos, attractionPoints[i].position) < killDistance) //if a branch is in the kill distance
+                        {
+                            //Debug.Log("attraction point at " + attractionPoints[i].position + " has been removed.");
+                            pointsToDelete.Add(i);
+                            //attractionPoints.Remove(attractionPoints[i]); //remove that point
+                        }
+                    }
+                }
+                for (int i = 0; i < pointsToDelete.Count; i++)
+                    attractionPoints.RemoveAt(pointsToDelete[i]);
+                
                 //clean up after iteration 
 
                 foreach (Branch b in branches)
@@ -183,29 +218,18 @@ public class GenerateShape : MonoBehaviour
                 currentAttractionPoints.Clear();
 
 
-                //remove attraction points that have been reached
-                for (int i = 0; i < attractionPoints.Count; i++)
-                {
-                    //also reset closest branch
-                    attractionPoints[i].closestBranch = null;
-
-                    foreach (Branch branch in branches)
-                    {
-                        if (Vector3.Distance(branch.endPos, attractionPoints[i].position) < killDistance) //if a branch is in the kill distance
-                        {
-                            //Debug.Log("attraction point at " + attractionPoints[i].position + " has been removed.");
-                            attractionPoints.Remove(attractionPoints[i]); //remove that point
-                            break;
-                        }
-                    }
-                }
             }
             else
             {
                 Debug.Log("Time from start to end = " + (Time.time - temp));
-                Debug.Log("Num of duplicate branches = " + duplicateBranches);
+                Debug.Log("Num of duplicate branches = " + duplicateBranches.Count);
                 Debug.Break();
             }
+        }
+        if(numOfBranchesAtBeginning == branches.Count)
+        {
+            attractionPoints.Clear();
+            //iterationCount = 9999;
         }
     }
 
@@ -328,7 +352,7 @@ public class GenerateShape : MonoBehaviour
         if(TogglePointsView == false)
         {
             //draw crown
-            Gizmos.color = Color.green;
+            Gizmos.color = Color.magenta;
             Gizmos.DrawWireMesh(mesh, transform.InverseTransformPoint(transform.position));
 
             //draw attraction points
@@ -361,10 +385,18 @@ public class GenerateShape : MonoBehaviour
             Gizmos.color = Color.magenta;
             Gizmos.DrawWireSphere(branch.endPos, 0.2f);
         }*/
-        foreach(Branch branch in branches)
+        if(ShowOnlyDuplicates == false)
         {
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawLine(transform.InverseTransformPoint(branch.startPos), transform.InverseTransformPoint(branch.endPos));
+            foreach(Branch branch in branches)
+            {
+                Gizmos.color = Color.green;
+                Gizmos.DrawLine(transform.InverseTransformPoint(branch.startPos), transform.InverseTransformPoint(branch.endPos));
+            }
+        }
+        foreach(Branch duplicate in duplicateBranches)
+        {
+            Gizmos.color = Color.black;
+            Gizmos.DrawLine(transform.InverseTransformPoint(duplicate.startPos), transform.InverseTransformPoint(duplicate.endPos));
         }
     }
 }
