@@ -40,10 +40,10 @@ public class GenerateShape : MonoBehaviour
     {
         public Vector3 startPos;
         public Vector3 endPos;
-        public Vector3 direction;
+        private Vector3 direction;
         public List<Vector3> pointsInRange = new List<Vector3>();
-        public float branchLength = 0.5f;
-        public Branch parent;
+        private float branchLength = 0.5f;
+        private Branch parent;
         public List<Branch> children = new List<Branch>();
 
         public Branch(Branch parent, Vector3 direction)
