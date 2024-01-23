@@ -96,8 +96,8 @@ public class GenerateShape : MonoBehaviour
         else
         {
             //Debug.Log("Finished!");
-            //Debug.Log("Time from start to end = " + Time.time);
-            //Debug.Break();
+            Debug.Log("Time from start to end = " + Time.time);
+            Debug.Break();
             //Debug.Log("Num of duplicate branches = " + duplicateBranches.Count);
         }
     }
@@ -400,7 +400,7 @@ public class GenerateShape : MonoBehaviour
         {
             foreach(Branch branch in branches)
             {
-                Gizmos.color = Color.green;
+                Gizmos.color = Color.black;
                 Gizmos.DrawLine(transform.InverseTransformPoint(branch.startPos), transform.InverseTransformPoint(branch.endPos));
             }
         }
