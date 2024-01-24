@@ -352,6 +352,7 @@ MonoBehaviour:
   maxIterations: 100
   numOfBranches: 0
   timeBetweenIterations: 0
+  randomSeed: 154
   TogglePointsView: 1
   ShowOnlyDuplicates: 0
   branchMat: {fileID: 2100000, guid: 97c9b0991f6ab144690992e56d583373, type: 2}
@@ -362,7 +363,7 @@ MonoBehaviour:
   killDistance: 0.7
   displayInfluenceDistance: 0
   influenceDistance: 2.37
-  numOfAttractionPoints: 750
+  numOfAttractionPoints: 800
 --- !u!23 &922368467
 MeshRenderer:
   m_ObjectHideFlags: 0

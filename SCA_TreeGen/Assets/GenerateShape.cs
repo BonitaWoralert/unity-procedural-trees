@@ -20,6 +20,7 @@ public class GenerateShape : MonoBehaviour
     [SerializeField] private int numOfBranches = 0;
     [SerializeField] private float timeBetweenIterations = 1.0f;
     private float nextIteration = 0.0f;
+    [SerializeField] private int randomSeed = 0;
 
     [Header("Gizmos")]
     [SerializeField] private bool TogglePointsView = false;
@@ -86,6 +87,7 @@ public class GenerateShape : MonoBehaviour
 
     private void Start()
     {
+        Random.InitState(randomSeed);
         //DrawSphere();
         GenerateAttractionPoints();
 
@@ -144,7 +146,7 @@ public class GenerateShape : MonoBehaviour
         thing.radiusTop = topRadius;
         thing.radiusBottom = bottomRadius;
         thing.transform.position = position;
-        thing.transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
+        thing.transform.rotation = Quaternion.LookRotation(direction) * new Quaternion(0,90,90,0);
         thing.height = height;
     }
 
@@ -152,7 +154,7 @@ public class GenerateShape : MonoBehaviour
     {
         foreach(Branch branch in branches)
         {
-            DrawBranch(0.2f, 0.2f, branch.branchLength, Vector3.Lerp(branch.endPos, branch.startPos, 0.5f), branch.direction);
+            DrawBranch(0.1f, 0.1f, branch.branchLength, Vector3.Lerp(branch.endPos, branch.startPos, 0.5f), branch.direction);
         }
     }
 
