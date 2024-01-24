@@ -5,15 +5,25 @@ using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEngine.Mesh;
 
+//https://apparat-engine.blogspot.com/2013/04/procdural-meshes-cylinder.html
+[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
+
 public class CreateCylinder : MonoBehaviour
 {
-    [SerializeField]int slices, height, radiusTop, radiusBottom;
+    [SerializeField] public float slices = 16, height = 7, radiusTop = 2, radiusBottom = 4;
     Mesh mesh;
-    
+
+    private void Awake()
+    {
+        GetComponent<MeshFilter>().mesh = mesh = new Mesh();
+        mesh.name = "cylinder";
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        CreateGeometry();   
+        CreateGeometry();
+        mesh.Optimize();
     }
 
     // Update is called once per frame
@@ -31,17 +41,14 @@ public class CreateCylinder : MonoBehaviour
          * theta runs from 0 to 2 * PI
          */
 
-        int numVerticesPerRow = slices + 1;
-        int numVertices = numVerticesPerRow * 2 + 2;
+        float numVerticesPerRow = slices + 1;
+        float numVertices = numVerticesPerRow * 2 + 2;
 
         List<Vector3> verticesList = new List<Vector3>();
         List<int> triangleList = new List<int>();
         
         Vector3[] vertices;
         int[] triangles;
-        
-        GetComponent<MeshFilter>().mesh = mesh = new Mesh();
-        mesh.name = "cylinder";
 
         //vertex buffer
 
@@ -83,7 +90,7 @@ public class CreateCylinder : MonoBehaviour
 
         //index buffer
 
-        int numIndices = slices * 2 * 6;
+        float numIndices = slices * 2 * 6;
 
         for (int verticalIt = 0; verticalIt < 1; verticalIt++)
         {
@@ -152,6 +159,5 @@ public class CreateCylinder : MonoBehaviour
         //set it on the mesh
         mesh.vertices = vertices;
         mesh.triangles = triangles;
-        //mesh.normals = normals;
     }
 }

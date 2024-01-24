@@ -7,6 +7,9 @@ using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 using System.Linq;
 
+[RequireComponent(typeof(MeshFilter))]
+[RequireComponent(typeof(MeshRenderer))]
+
 public class GenerateShape : MonoBehaviour
 {
     private bool finishedGenerating = false;
@@ -82,8 +85,38 @@ public class GenerateShape : MonoBehaviour
 
     private void Start()
     {
-        DrawSphere();
+        //DrawSphere();
         GenerateAttractionPoints();
+
+        DrawBranch(1, 1, 1);
+        DrawBranch(3, 4, 2);
+
+       /* MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
+        CombineInstance[] combine = new CombineInstance[meshFilters.Length];
+
+        int i = 0;
+        while (i < meshFilters.Length)
+        {
+            combine[i].mesh = meshFilters[i].sharedMesh;
+            combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
+            meshFilters[i].gameObject.SetActive(false);
+
+            i++;
+        }
+
+        MeshFilter meshFilter = transform.GetComponent<MeshFilter>();
+        meshFilter.mesh = new Mesh();
+        transform.GetComponent<MeshFilter>().sharedMesh = mesh;
+        meshFilter.mesh.CombineMeshes(combine, true, true);
+        gameObject.SetActive(true);*/
+
+
+        /*
+                mesh = new Mesh();
+                mesh.CombineMeshes(combine, true, true);
+                transform.GetComponent<MeshFilter>().sharedMesh = mesh;
+                transform.gameObject.SetActive(true);*/
+        ///
 
         Branch firstBranch = new Branch(new Vector3(0, -radius - Random.Range(5.0f, 7.5f), 0), Vector3.up);
         branches.Add(firstBranch);
@@ -100,6 +133,16 @@ public class GenerateShape : MonoBehaviour
             Debug.Break();
             //Debug.Log("Num of duplicate branches = " + duplicateBranches.Count);
         }
+    }
+
+    private void DrawBranch(float topRadius, float bottomRadius, float height)
+    {
+        GameObject testCylinder = new GameObject("branch", typeof(CreateCylinder));
+        testCylinder.transform.SetParent(this.transform);
+        CreateCylinder thing = testCylinder.GetComponent<CreateCylinder>();
+        thing.radiusTop = topRadius;
+        thing.radiusBottom = bottomRadius;
+        thing.height = height;
     }
 
     private void GenerateTree()
@@ -243,7 +286,7 @@ public class GenerateShape : MonoBehaviour
             //iterationCount = 9999;
         }
     }
-
+    /*
     private void DrawSphere()
     {
         //crown
@@ -341,7 +384,7 @@ public class GenerateShape : MonoBehaviour
         mesh.triangles = triangles;
         mesh.normals = normals;
     }
-
+    */
     private void GenerateAttractionPoints()
     {
         //Vertex method: Attraction points are placed at each vertex of the crown
@@ -364,7 +407,7 @@ public class GenerateShape : MonoBehaviour
         {
             //draw crown
             Gizmos.color = Color.magenta;
-            Gizmos.DrawWireMesh(mesh, transform.InverseTransformPoint(transform.position));
+            //Gizmos.DrawWireMesh(mesh, transform.InverseTransformPoint(transform.position));
 
             //draw attraction points
             foreach (var attraction in attractionPoints)
