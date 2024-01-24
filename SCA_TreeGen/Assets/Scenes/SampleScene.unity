@@ -349,11 +349,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iterationCount: 0
-  maxIterations: 3770
+  maxIterations: 100
   numOfBranches: 0
   timeBetweenIterations: 0
   TogglePointsView: 1
   ShowOnlyDuplicates: 0
+  branchMat: {fileID: 2100000, guid: 97c9b0991f6ab144690992e56d583373, type: 2}
   radius: 7.5
   sliceCount: 10
   stackCount: 10
@@ -411,7 +412,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 922368465}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 0}
 --- !u!4 &922368469
 Transform:
   m_ObjectHideFlags: 0

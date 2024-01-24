@@ -24,6 +24,7 @@ public class GenerateShape : MonoBehaviour
     [Header("Gizmos")]
     [SerializeField] private bool TogglePointsView = false;
     [SerializeField] private bool ShowOnlyDuplicates = false;
+    [SerializeField] private Material branchMat;
 
     [Header("Crown Variables (sphere)")]
     [SerializeField][Range(0,25)] private float radius = 8;
@@ -43,9 +44,9 @@ public class GenerateShape : MonoBehaviour
     {
         public Vector3 startPos;
         public Vector3 endPos;
-        private Vector3 direction;
+        public Vector3 direction;
         public List<Vector3> pointsInRange = new List<Vector3>();
-        private float branchLength = 0.5f;
+        public float branchLength = 0.5f;
         private Branch parent;
         public List<Branch> children = new List<Branch>();
 
@@ -88,9 +89,6 @@ public class GenerateShape : MonoBehaviour
         //DrawSphere();
         GenerateAttractionPoints();
 
-        DrawBranch(1, 1, 1);
-        DrawBranch(3, 4, 2);
-
        /* MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
         CombineInstance[] combine = new CombineInstance[meshFilters.Length];
 
@@ -130,19 +128,32 @@ public class GenerateShape : MonoBehaviour
         {
             //Debug.Log("Finished!");
             Debug.Log("Time from start to end = " + Time.time);
+            DrawGeometry();
+            Debug.Log("Time from start to end = " + Time.time);
             Debug.Break();
             //Debug.Log("Num of duplicate branches = " + duplicateBranches.Count);
         }
     }
 
-    private void DrawBranch(float topRadius, float bottomRadius, float height)
+    private void DrawBranch(float topRadius, float bottomRadius, float height, Vector3 position, Vector3 direction)
     {
         GameObject testCylinder = new GameObject("branch", typeof(CreateCylinder));
         testCylinder.transform.SetParent(this.transform);
+        testCylinder.GetComponent<MeshRenderer>().material = branchMat;
         CreateCylinder thing = testCylinder.GetComponent<CreateCylinder>();
         thing.radiusTop = topRadius;
         thing.radiusBottom = bottomRadius;
+        thing.transform.position = position;
+        thing.transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
         thing.height = height;
+    }
+
+    private void DrawGeometry()
+    {
+        foreach(Branch branch in branches)
+        {
+            DrawBranch(0.2f, 0.2f, branch.branchLength, Vector3.Lerp(branch.endPos, branch.startPos, 0.5f), branch.direction);
+        }
     }
 
     private void GenerateTree()
@@ -432,13 +443,6 @@ public class GenerateShape : MonoBehaviour
 
 
         //draw branches
-        /*foreach (Branch branch in branches)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(branch.startPos, 0.2f);
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawWireSphere(branch.endPos, 0.2f);
-        }*/
         if(ShowOnlyDuplicates == false)
         {
             foreach(Branch branch in branches)
