@@ -12,6 +12,7 @@ public class CreateCylinder : MonoBehaviour
 {
     [SerializeField] public float slices = 16, height = 7, radiusTop = 2, radiusBottom = 4;
     Mesh mesh;
+    public Vector3 direction;
 
     private void Awake()
     {
@@ -24,12 +25,6 @@ public class CreateCylinder : MonoBehaviour
     {
         CreateGeometry();
         mesh.Optimize();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     private void CreateGeometry()
@@ -54,6 +49,7 @@ public class CreateCylinder : MonoBehaviour
 
         float theta = 0.0f;
         float horizontalAngularStride = ((float)Mathf.PI * 2) / (float)slices;
+        Quaternion directionAdjust = Quaternion.FromToRotation(Vector3.up, direction);
 
         for (int verticalIt = 0; verticalIt < 2; verticalIt++)
         {
@@ -81,12 +77,13 @@ public class CreateCylinder : MonoBehaviour
                 }
 
                 Vector3 position = new Vector3(x, z, y);
+                position = directionAdjust * position;
                 verticesList.Add(position);
             }
         }
 
-        verticesList.Add(new Vector3(0, height, 0));
-        verticesList.Add(Vector3.zero);
+        verticesList.Add(directionAdjust * new Vector3(0, height, 0));
+        verticesList.Add(directionAdjust * Vector3.zero);
 
         //index buffer
 

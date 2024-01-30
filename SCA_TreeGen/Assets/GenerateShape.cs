@@ -48,20 +48,22 @@ public class GenerateShape : MonoBehaviour
         public Vector3 direction;
         public List<Vector3> pointsInRange = new List<Vector3>();
         public float branchLength = 0.5f;
-        private Branch parent;
+        public Branch parent;
         public List<Branch> children = new List<Branch>();
+        public int distanceFromRoot = 1;
 
         public Branch(Branch parent, Vector3 direction)
         {
             startPos = parent.endPos; this.direction = direction; this.parent = parent;
             endPos = startPos + (direction * branchLength);
+            this.distanceFromRoot = parent.distanceFromRoot++; //this is 1 more branch away from the root node.
             parent.children.Add(this);
         }
         public Branch(Vector3 startPos, Vector3 direction)
         {
             this.startPos = startPos; this.direction = direction;
             endPos = startPos + (direction * branchLength);
-            parent = null;
+            parent = this;
         }
     }
 
@@ -146,15 +148,16 @@ public class GenerateShape : MonoBehaviour
         thing.radiusTop = topRadius;
         thing.radiusBottom = bottomRadius;
         thing.transform.position = position;
-        thing.transform.rotation = Quaternion.LookRotation(direction) * new Quaternion(0,90,90,0);
+        //thing.transform.rotation = Quaternion.LookRotation(direction) * new Quaternion(0,90,90,0);
         thing.height = height;
+        thing.direction = direction;
     }
 
     private void DrawGeometry()
     {
         foreach(Branch branch in branches)
         {
-            DrawBranch(0.1f, 0.1f, branch.branchLength, Vector3.Lerp(branch.endPos, branch.startPos, 0.5f), branch.direction);
+            DrawBranch(0.2f, 0.2f, branch.branchLength, Vector3.Lerp(branch.endPos, branch.startPos, 0.5f), branch.direction);
         }
     }
 
