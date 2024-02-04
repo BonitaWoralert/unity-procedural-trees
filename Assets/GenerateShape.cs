@@ -21,6 +21,9 @@ public class Branch
     public List<Branch> children = new List<Branch>();
     public int distanceFromRoot = 1;
 
+    //mesh info
+    public int startingIndex;
+
     public Branch(Branch parent, Vector3 direction)
     {
         startPos = parent.endPos; this.direction = direction; this.parent = parent;
@@ -76,8 +79,6 @@ public class GenerateShape : MonoBehaviour
     private List<Branch> duplicateBranches = new List<Branch>();
     private int numOfBranchesAtBeginning = 0;
 
-    
-
     //attraction points
     private List<AttractionPoints> attractionPoints = new List<AttractionPoints>();
     [Header("Attraction Points")]
@@ -88,6 +89,7 @@ public class GenerateShape : MonoBehaviour
     [SerializeField] private List<AttractionPoints> currentAttractionPoints = new List<AttractionPoints>();
     [SerializeField] private int numOfAttractionPoints = 100;
 
+    GameObject treeGeometry;
 
     private void Start()
     {
@@ -95,24 +97,26 @@ public class GenerateShape : MonoBehaviour
         //DrawSphere();
         GenerateAttractionPoints();
 
-       /* MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
-        CombineInstance[] combine = new CombineInstance[meshFilters.Length];
+        treeGeometry = transform.GetChild(0).gameObject;
 
-        int i = 0;
-        while (i < meshFilters.Length)
-        {
-            combine[i].mesh = meshFilters[i].sharedMesh;
-            combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
-            meshFilters[i].gameObject.SetActive(false);
+        /* MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
+         CombineInstance[] combine = new CombineInstance[meshFilters.Length];
 
-            i++;
-        }
+         int i = 0;
+         while (i < meshFilters.Length)
+         {
+             combine[i].mesh = meshFilters[i].sharedMesh;
+             combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
+             meshFilters[i].gameObject.SetActive(false);
 
-        MeshFilter meshFilter = transform.GetComponent<MeshFilter>();
-        meshFilter.mesh = new Mesh();
-        transform.GetComponent<MeshFilter>().sharedMesh = mesh;
-        meshFilter.mesh.CombineMeshes(combine, true, true);
-        gameObject.SetActive(true);*/
+             i++;
+         }
+
+         MeshFilter meshFilter = transform.GetComponent<MeshFilter>();
+         meshFilter.mesh = new Mesh();
+         transform.GetComponent<MeshFilter>().sharedMesh = mesh;
+         meshFilter.mesh.CombineMeshes(combine, true, true);
+         gameObject.SetActive(true);*/
 
 
         /*
@@ -129,24 +133,25 @@ public class GenerateShape : MonoBehaviour
     private void Update()
     {
         if (!finishedGenerating)
+        {
             GenerateTree();
+        }
         else
         {
             //Debug.Log("Finished!");
             Debug.Log("Time from start to end = " + Time.time);
-            DrawGeometry();
-            Debug.Log("Time from start to end = " + Time.time);
+            treeGeometry.GetComponent<CreateCylinder>().FinalizeGeometry();
             Debug.Break();
-            //Debug.Log("Num of duplicate branches = " + duplicateBranches.Count);
         }
     }
 
     private void DrawGeometry()
     {
-        GameObject treeGeometry = new GameObject("treeMesh",typeof(CreateCylinder)); //create geometry gameobject
+        /*//geometry
+        GameObject treeGeometry = new GameObject("treeMesh", typeof(CreateCylinder)); //create geometry gameobject
         treeGeometry.transform.SetParent(this.transform); //set it as a child of this object
-        treeGeometry.GetComponent<MeshRenderer>().material = branchMat; //set material
-        treeGeometry.GetComponent<CreateCylinder>().CreateGeometry(branches, 8); //create geometry with branches + specified slice count
+        treeGeometry.GetComponent<MeshRenderer>().material = branchMat; //set material   */
+        treeGeometry.GetComponent<CreateCylinder>().CreateGeometry(newBranches, 8); //create geometry with branches + specified slice count
     }
 
     private void GenerateTree()
@@ -246,6 +251,8 @@ public class GenerateShape : MonoBehaviour
 
                 //add these new nodes, remove points, repeat.
                 branches.AddRange(newBranches);
+                //draw geometry here
+                DrawGeometry();
 
                 List<int> pointsToDelete = new List<int>();
                 //remove attraction points that have been reached

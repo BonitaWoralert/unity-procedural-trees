@@ -8,26 +8,21 @@ using UnityEngine;
 using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 using static UnityEngine.Mesh;
 
-//https://apparat-engine.blogspot.com/2013/04/procdural-meshes-cylinder.html
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 
 public class CreateCylinder : MonoBehaviour
 {
-    //[SerializeField] public float slices = 16, height = 7, radiusTop = 2, radiusBottom = 4;
     float radius = 0.2f;
     Mesh mesh;
-    //public Vector3 direction;
+    List<Vector3> verticesList = new List<Vector3>();
+    List<int> triangleList = new List<int>();
+    Vector3[] vertices;
+    int[] triangles;
 
     private void Awake()
     {
         GetComponent<MeshFilter>().mesh = mesh = new Mesh();
         mesh.name = "cylinder";
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
     }
 
     public void CreateGeometry(List<Branch> branches, int slices)
@@ -38,10 +33,7 @@ public class CreateCylinder : MonoBehaviour
          * z = height
          * theta runs from 0 to 2 * PI
          */
-        List<Vector3> verticesList = new List<Vector3>();
-        List<int> triangleList = new List<int>();
-        Vector3[] vertices;
-        int[] triangles;
+        
         int baseIndex = verticesList.Count;
         int centerIndex;
         Quaternion directionAdjust;
@@ -88,6 +80,11 @@ public class CreateCylinder : MonoBehaviour
                 position = directionAdjust * position; //rotate accordingly
                 position += branches[i].endPos; //move to correct location
                 verticesList.Add(position); //add to list
+                
+                if(j == 0)
+                {
+                    branches[i].startingIndex = verticesList.Count - 1;
+                }
             }
 
             verticesList.Add(branches[i].endPos); //center vertex
@@ -101,9 +98,9 @@ public class CreateCylinder : MonoBehaviour
             }
         }
 
-        int b = 0, t = 0;
+        int b = 0, t = 0; //base and top circles starting indices
         //connect together to make a cylinder!
-        for (int i = 0; i < 11; i++)
+        for (int i = 0; i < branches.Count; i++)
         {
             if(i == 0) //test with just one
             {
@@ -120,10 +117,12 @@ public class CreateCylinder : MonoBehaviour
                     triangleList.Add(t + j + 1);
                 }
             }
-            else if (branches[i].children.Count != 0)
+            else
             {
-                b += slices + 2;
-                t = b + slices + 2;
+                //b += slices + 2;
+                b = branches[i].parent.startingIndex;
+                t = branches[i].startingIndex;
+                //t = b + slices + 2;
                 for (int j = 0; j < slices; j++)
                 {
                     triangleList.Add(b + j);
@@ -136,10 +135,11 @@ public class CreateCylinder : MonoBehaviour
                 }
             }
         }
+    }
 
+    public void FinalizeGeometry()
+    {
         //add to arrays
-
-
         vertices = new Vector3[verticesList.Count];
         for (int i = 0; i < verticesList.Count; i++)
         {
@@ -163,6 +163,6 @@ public class CreateCylinder : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireMesh(mesh);
+        //Gizmos.DrawWireMesh(mesh);
     }
 }
