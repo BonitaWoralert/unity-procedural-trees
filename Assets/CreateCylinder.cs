@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using TMPro.EditorUtilities;
 using Unity.VisualScripting;
 using UnityEngine;
 using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
@@ -28,7 +30,7 @@ public class CreateCylinder : MonoBehaviour
         
     }
 
-    public void CreateGeometry(List<Branch> branches, float slices)
+    public void CreateGeometry(List<Branch> branches, int slices)
     {
         /*create circle with the following formula:
          *x = radius * cos(theta)
@@ -47,7 +49,7 @@ public class CreateCylinder : MonoBehaviour
         float x, y, z;
         float theta = ((float)Mathf.PI * 2) / slices; //theta
 
-        //create circle for the start node
+        /*//create circle for the start node
         directionAdjust = Quaternion.FromToRotation(Vector3.down, branches[0].direction);
         for (int j = 0; j <= slices; j++)
         {
@@ -69,7 +71,7 @@ public class CreateCylinder : MonoBehaviour
             triangleList.Add(centerIndex);
             triangleList.Add(baseIndex + j + 1);
             triangleList.Add(baseIndex + j);
-        }
+        }*/
 
         //for each branch, create circle at the end point
         for (int i = 0; i < branches.Count; i++) 
@@ -91,7 +93,7 @@ public class CreateCylinder : MonoBehaviour
             verticesList.Add(branches[i].endPos); //center vertex
             centerIndex = verticesList.Count- 1;
 
-            for (int j = 0; j<slices; j++) //set triangles
+            for (int j = 0; j < slices; j++) //set triangles
             {
                 triangleList.Add(centerIndex);
                 triangleList.Add(baseIndex + j + 1);
@@ -99,8 +101,44 @@ public class CreateCylinder : MonoBehaviour
             }
         }
 
+        int b = 0, t = 0;
+        //connect together to make a cylinder!
+        for (int i = 0; i < 11; i++)
+        {
+            if(i == 0) //test with just one
+            {
+                b = 0;
+                t = b + slices+2;
+                for(int j=0;j<slices;j++)
+                {
+                    triangleList.Add(b + j);
+                    triangleList.Add(t + j);
+                    triangleList.Add(b + j + 1);
+
+                    triangleList.Add(b + j + 1);
+                    triangleList.Add(t + j);
+                    triangleList.Add(t + j + 1);
+                }
+            }
+            else if (branches[i].children.Count != 0)
+            {
+                b += slices + 2;
+                t = b + slices + 2;
+                for (int j = 0; j < slices; j++)
+                {
+                    triangleList.Add(b + j);
+                    triangleList.Add(t + j);
+                    triangleList.Add(b + j + 1);
+
+                    triangleList.Add(b + j + 1);
+                    triangleList.Add(t + j);
+                    triangleList.Add(t + j + 1);
+                }
+            }
+        }
 
         //add to arrays
+
 
         vertices = new Vector3[verticesList.Count];
         for (int i = 0; i < verticesList.Count; i++)
@@ -119,6 +157,12 @@ public class CreateCylinder : MonoBehaviour
         mesh.triangles = triangles;
 
         //optimise ?
+        mesh.RecalculateNormals();
         mesh.Optimize();
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireMesh(mesh);
     }
 }

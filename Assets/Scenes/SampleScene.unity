@@ -204,11 +204,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebbb497481e6d8141be5dba3b5c27f0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slices: 16
-  height: 7
-  radiusTop: 2
-  radiusBottom: 4
-  direction: {x: 0, y: 0, z: 0}
 --- !u!4 &623063338
 Transform:
   m_ObjectHideFlags: 0
@@ -355,7 +350,7 @@ MonoBehaviour:
   timeBetweenIterations: 0
   randomSeed: 154
   TogglePointsView: 1
-  ShowOnlyDuplicates: 0
+  ShowOnlyDuplicates: 1
   branchMat: {fileID: 2100000, guid: 97c9b0991f6ab144690992e56d583373, type: 2}
   radius: 7.5
   sliceCount: 10
