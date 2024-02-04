@@ -10,6 +10,41 @@ using System.Linq;
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
 
+public class Branch
+{
+    public Vector3 startPos;
+    public Vector3 endPos;
+    public Vector3 direction;
+    public List<Vector3> pointsInRange = new List<Vector3>();
+    public float branchLength = 0.5f;
+    public Branch parent;
+    public List<Branch> children = new List<Branch>();
+    public int distanceFromRoot = 1;
+
+    public Branch(Branch parent, Vector3 direction)
+    {
+        startPos = parent.endPos; this.direction = direction; this.parent = parent;
+        endPos = startPos + (direction * branchLength);
+        this.distanceFromRoot = parent.distanceFromRoot++; //this is 1 more branch away from the root node.
+        parent.children.Add(this);
+    }
+    public Branch(Vector3 startPos, Vector3 direction)
+    {
+        this.startPos = startPos; this.direction = direction;
+        endPos = startPos + (direction * branchLength);
+        parent = this;
+    }
+}
+
+class AttractionPoints
+{
+    public Branch closestBranch;
+    public Vector3 position;
+
+    public AttractionPoints(Vector3 position)
+    { this.position = position; }
+}
+
 public class GenerateShape : MonoBehaviour
 {
     private bool finishedGenerating = false;
@@ -41,31 +76,7 @@ public class GenerateShape : MonoBehaviour
     private List<Branch> duplicateBranches = new List<Branch>();
     private int numOfBranchesAtBeginning = 0;
 
-    class Branch
-    {
-        public Vector3 startPos;
-        public Vector3 endPos;
-        public Vector3 direction;
-        public List<Vector3> pointsInRange = new List<Vector3>();
-        public float branchLength = 0.5f;
-        public Branch parent;
-        public List<Branch> children = new List<Branch>();
-        public int distanceFromRoot = 1;
-
-        public Branch(Branch parent, Vector3 direction)
-        {
-            startPos = parent.endPos; this.direction = direction; this.parent = parent;
-            endPos = startPos + (direction * branchLength);
-            this.distanceFromRoot = parent.distanceFromRoot++; //this is 1 more branch away from the root node.
-            parent.children.Add(this);
-        }
-        public Branch(Vector3 startPos, Vector3 direction)
-        {
-            this.startPos = startPos; this.direction = direction;
-            endPos = startPos + (direction * branchLength);
-            parent = this;
-        }
-    }
+    
 
     //attraction points
     private List<AttractionPoints> attractionPoints = new List<AttractionPoints>();
@@ -76,15 +87,6 @@ public class GenerateShape : MonoBehaviour
     [SerializeField][Range(0, 10)] private float influenceDistance = 2f;
     [SerializeField] private List<AttractionPoints> currentAttractionPoints = new List<AttractionPoints>();
     [SerializeField] private int numOfAttractionPoints = 100;
-
-    class AttractionPoints
-    {
-        public Branch closestBranch;
-        public Vector3 position;
-
-        public AttractionPoints(Vector3 position)
-        { this.position = position; }
-    }
 
 
     private void Start()
@@ -139,26 +141,12 @@ public class GenerateShape : MonoBehaviour
         }
     }
 
-    private void DrawBranch(float topRadius, float bottomRadius, float height, Vector3 position, Vector3 direction)
-    {
-        GameObject testCylinder = new GameObject("branch", typeof(CreateCylinder));
-        testCylinder.transform.SetParent(this.transform);
-        testCylinder.GetComponent<MeshRenderer>().material = branchMat;
-        CreateCylinder thing = testCylinder.GetComponent<CreateCylinder>();
-        thing.radiusTop = topRadius;
-        thing.radiusBottom = bottomRadius;
-        thing.transform.position = position;
-        //thing.transform.rotation = Quaternion.LookRotation(direction) * new Quaternion(0,90,90,0);
-        thing.height = height;
-        thing.direction = direction;
-    }
-
     private void DrawGeometry()
     {
-        foreach(Branch branch in branches)
-        {
-            DrawBranch(0.2f, 0.2f, branch.branchLength, Vector3.Lerp(branch.endPos, branch.startPos, 0.5f), branch.direction);
-        }
+        GameObject treeGeometry = new GameObject("treeMesh",typeof(CreateCylinder)); //create geometry gameobject
+        treeGeometry.transform.SetParent(this.transform); //set it as a child of this object
+        treeGeometry.GetComponent<MeshRenderer>().material = branchMat; //set material
+        treeGeometry.GetComponent<CreateCylinder>().CreateGeometry(branches, 8); //create geometry with branches + specified slice count
     }
 
     private void GenerateTree()

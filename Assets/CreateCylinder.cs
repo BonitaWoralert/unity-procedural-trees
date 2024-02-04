@@ -10,9 +10,9 @@ using static UnityEngine.Mesh;
 
 public class CreateCylinder : MonoBehaviour
 {
-    [SerializeField] public float slices = 16, height = 7, radiusTop = 2, radiusBottom = 4;
+    //[SerializeField] public float slices = 16, height = 7, radiusTop = 2, radiusBottom = 4;
     Mesh mesh;
-    public Vector3 direction;
+    //public Vector3 direction;
 
     private void Awake()
     {
@@ -23,18 +23,23 @@ public class CreateCylinder : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        CreateGeometry();
+        
+    }
+
+    public void CreateGeometry(List<Branch> branches, float slices)
+    {
+
         mesh.Optimize();
     }
 
-    private void CreateGeometry()
+    /*private void CreateGeometry()
     {
-        /*create circle with the following formula:
+        *//*create circle with the following formula:
          * x = radius * cos(theta)
          * y = radius * sin(theta)
          * z = height
          * theta runs from 0 to 2 * PI
-         */
+         *//*
 
         float numVerticesPerRow = slices + 1;
         float numVertices = numVerticesPerRow * 2 + 2;
@@ -156,5 +161,5 @@ public class CreateCylinder : MonoBehaviour
         //set it on the mesh
         mesh.vertices = vertices;
         mesh.triangles = triangles;
-    }
+    }*/
 }
