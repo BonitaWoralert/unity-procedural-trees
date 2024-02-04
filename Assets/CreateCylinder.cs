@@ -41,42 +41,63 @@ public class CreateCylinder : MonoBehaviour
         Vector3[] vertices;
         int[] triangles;
         int baseIndex = verticesList.Count;
+        int centerIndex;
+        Quaternion directionAdjust;
 
         float x, y, z;
-        float theta = ((float)Mathf.PI * 2) / slices;
+        float theta = ((float)Mathf.PI * 2) / slices; //theta
 
-        Quaternion directionAdjust = Quaternion.FromToRotation(Vector3.down, branches[0].direction);
-        
-        for(int i = 0; i <= slices; ++i)
+        //create circle for the start node
+        directionAdjust = Quaternion.FromToRotation(Vector3.down, branches[0].direction);
+        for (int j = 0; j <= slices; j++)
         {
-            x = radius * Mathf.Cos(i*theta);
+            x = radius * Mathf.Cos(j * theta);
             y = 0;
-            z = radius * Mathf.Sin(i*theta);
+            z = radius * Mathf.Sin(j * theta);
 
             Vector3 position = new Vector3(x, y, z);
-            position = directionAdjust * position;
-            position += branches[0].startPos;
-            verticesList.Add(position);
+            position = directionAdjust * position; //rotate accordingly
+            position += branches[0].startPos; //move to correct location
+            verticesList.Add(position); //add to list
         }
 
         verticesList.Add(branches[0].startPos); //center vertex
-        int centerIndex = verticesList.Count-1;
+        centerIndex = verticesList.Count - 1;
 
-        for (int j = 0; j < slices; ++j)
+        for (int j = 0; j < slices; j++) //set triangles
         {
             triangleList.Add(centerIndex);
             triangleList.Add(baseIndex + j + 1);
             triangleList.Add(baseIndex + j);
         }
 
-
-
-        /*for(int i = 1; i < branches.Count; i++)
+        //for each branch, create circle at the end point
+        for (int i = 0; i < branches.Count; i++) 
         {
+            baseIndex = verticesList.Count;
             directionAdjust = Quaternion.FromToRotation(Vector3.up, branches[i].direction);
-        }*/
+            for (int j = 0; j <= slices; j++)
+            {
+                x = radius * Mathf.Cos(j * theta);
+                y = 0;
+                z = radius * Mathf.Sin(j * theta);
 
+                Vector3 position = new Vector3(x, y, z); 
+                position = directionAdjust * position; //rotate accordingly
+                position += branches[i].endPos; //move to correct location
+                verticesList.Add(position); //add to list
+            }
 
+            verticesList.Add(branches[i].endPos); //center vertex
+            centerIndex = verticesList.Count- 1;
+
+            for (int j = 0; j<slices; j++) //set triangles
+            {
+                triangleList.Add(centerIndex);
+                triangleList.Add(baseIndex + j + 1);
+                triangleList.Add(baseIndex + j);
+            }
+        }
 
 
         //add to arrays
@@ -100,135 +121,4 @@ public class CreateCylinder : MonoBehaviour
         //optimise ?
         mesh.Optimize();
     }
-
-    /*private void CreateGeometry()
-    {
-        *//*create circle with the following formula:
-         * x = radius * cos(theta)
-         * y = radius * sin(theta)
-         * z = height
-         * theta runs from 0 to 2 * PI
-         *//*
-
-        float numVerticesPerRow = slices + 1;
-        float numVertices = numVerticesPerRow * 2 + 2;
-
-        List<Vector3> verticesList = new List<Vector3>();
-        List<int> triangleList = new List<int>();
-        
-        Vector3[] vertices;
-        int[] triangles;
-
-        //vertex buffer
-
-        float theta = 0.0f;
-        float horizontalAngularStride = ((float)Mathf.PI * 2) / (float)slices;
-        Quaternion directionAdjust = Quaternion.FromToRotation(Vector3.up, direction);
-
-        for (int verticalIt = 0; verticalIt < 2; verticalIt++)
-        {
-            for (int horizontalIt = 0; horizontalIt < numVerticesPerRow; horizontalIt++)
-            {
-                float x;
-                float y;
-                float z;
-
-                theta = (horizontalAngularStride * horizontalIt);
-
-                if (verticalIt == 0)
-                {
-                    // upper circle
-                    x = radiusTop * (float)Math.Cos(theta);
-                    y = radiusTop * (float)Math.Sin(theta);
-                    z = height;
-                }
-                else
-                {
-                    // lower circle
-                    x = radiusBottom * (float)Math.Cos(theta);
-                    y = radiusBottom * (float)Math.Sin(theta);
-                    z = 0;
-                }
-
-                Vector3 position = new Vector3(x, z, y);
-                position = directionAdjust * position;
-                verticesList.Add(position);
-            }
-        }
-
-        verticesList.Add(directionAdjust * new Vector3(0, height, 0));
-        verticesList.Add(directionAdjust * Vector3.zero);
-
-        //index buffer
-
-        float numIndices = slices * 2 * 6;
-
-        for (int verticalIt = 0; verticalIt < 1; verticalIt++)
-        {
-            for (int horizontalIt = 0; horizontalIt < slices; horizontalIt++)
-            {
-                short lt = (short)(horizontalIt + verticalIt * (numVerticesPerRow));
-                short rt = (short)((horizontalIt + 1) + verticalIt * (numVerticesPerRow));
-
-                short lb = (short)(horizontalIt + (verticalIt + 1) * (numVerticesPerRow));
-                short rb = (short)((horizontalIt + 1) + (verticalIt + 1) * (numVerticesPerRow));
-
-                triangleList.Add(lt);
-                triangleList.Add(rt);
-                triangleList.Add(lb);
-
-                triangleList.Add(rt);
-                triangleList.Add(rb);
-                triangleList.Add(lb);
-            }
-        }
-
-        for (int verticalIt = 0; verticalIt < 1; verticalIt++)
-        {
-            for (int horizontalIt = 0; horizontalIt < slices; horizontalIt++)
-            {
-                short lt = (short)(horizontalIt + verticalIt * (numVerticesPerRow));
-                short rt = (short)((horizontalIt + 1) + verticalIt * (numVerticesPerRow));
-
-                short patchIndexTop = (short)(numVerticesPerRow * 2);
-
-                triangleList.Add(lt);
-                triangleList.Add(patchIndexTop);
-                triangleList.Add(rt);
-            }
-        }
-
-        for (int verticalIt = 0; verticalIt < 1; verticalIt++)
-        {
-            for (int horizontalIt = 0; horizontalIt < slices; horizontalIt++)
-            {
-                short lb = (short)(horizontalIt + (verticalIt + 1) * (numVerticesPerRow));
-                short rb = (short)((horizontalIt + 1) + (verticalIt + 1) * (numVerticesPerRow));
-
-
-                short patchIndexBottom = (short)(numVerticesPerRow * 2 + 1);
-                triangleList.Add(lb);
-                triangleList.Add(rb);
-                triangleList.Add(patchIndexBottom);
-            }
-        }
-
-        //add to arrays
-
-        vertices = new Vector3[verticesList.Count];
-        for (int i = 0; i < verticesList.Count; i++)
-        {
-            vertices[i] = verticesList[i];
-        }
-        //tris
-        triangles = new int[triangleList.Count];
-        for (int i = 0; i < triangleList.Count; i++)
-        {
-            triangles[i] = triangleList[i];
-        }
-
-        //set it on the mesh
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
-    }*/
 }
