@@ -14,10 +14,7 @@ public class CreateCylinder : MonoBehaviour
 {
     float radius = 0.2f;
     Mesh mesh;
-    List<Vector3> verticesList = new List<Vector3>();
-    List<int> triangleList = new List<int>();
-    Vector3[] vertices;
-    int[] triangles;
+    
 
     private void Awake()
     {
@@ -33,7 +30,12 @@ public class CreateCylinder : MonoBehaviour
          * z = height
          * theta runs from 0 to 2 * PI
          */
-        
+
+        List<Vector3> verticesList = new List<Vector3>();
+        List<int> triangleList = new List<int>();
+        Vector3[] vertices;
+        int[] triangles;
+
         int baseIndex = verticesList.Count;
         int centerIndex;
         Quaternion directionAdjust;
@@ -135,10 +137,7 @@ public class CreateCylinder : MonoBehaviour
                 }
             }
         }
-    }
 
-    public void FinalizeGeometry()
-    {
         //add to arrays
         vertices = new Vector3[verticesList.Count];
         for (int i = 0; i < verticesList.Count; i++)

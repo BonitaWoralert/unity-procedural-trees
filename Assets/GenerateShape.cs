@@ -89,15 +89,12 @@ public class GenerateShape : MonoBehaviour
     [SerializeField] private List<AttractionPoints> currentAttractionPoints = new List<AttractionPoints>();
     [SerializeField] private int numOfAttractionPoints = 100;
 
-    GameObject treeGeometry;
-
     private void Start()
     {
-        Random.InitState(randomSeed);
+        if(randomSeed !=0) //set to 0 if we want actual random
+            Random.InitState(randomSeed);
         //DrawSphere();
         GenerateAttractionPoints();
-
-        treeGeometry = transform.GetChild(0).gameObject;
 
         /* MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
          CombineInstance[] combine = new CombineInstance[meshFilters.Length];
@@ -140,18 +137,19 @@ public class GenerateShape : MonoBehaviour
         {
             //Debug.Log("Finished!");
             Debug.Log("Time from start to end = " + Time.time);
-            treeGeometry.GetComponent<CreateCylinder>().FinalizeGeometry();
+            DrawGeometry();
+            //treeGeometry.GetComponent<CreateCylinder>().FinalizeGeometry();
             Debug.Break();
         }
     }
 
     private void DrawGeometry()
     {
-        /*//geometry
+        //geometry
         GameObject treeGeometry = new GameObject("treeMesh", typeof(CreateCylinder)); //create geometry gameobject
         treeGeometry.transform.SetParent(this.transform); //set it as a child of this object
-        treeGeometry.GetComponent<MeshRenderer>().material = branchMat; //set material   */
-        treeGeometry.GetComponent<CreateCylinder>().CreateGeometry(newBranches, 8); //create geometry with branches + specified slice count
+        treeGeometry.GetComponent<MeshRenderer>().material = branchMat; //set material   
+        treeGeometry.GetComponent<CreateCylinder>().CreateGeometry(branches, 8); //create geometry with branches + specified slice count
     }
 
     private void GenerateTree()
@@ -251,8 +249,6 @@ public class GenerateShape : MonoBehaviour
 
                 //add these new nodes, remove points, repeat.
                 branches.AddRange(newBranches);
-                //draw geometry here
-                DrawGeometry();
 
                 List<int> pointsToDelete = new List<int>();
                 //remove attraction points that have been reached
