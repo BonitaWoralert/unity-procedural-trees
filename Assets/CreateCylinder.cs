@@ -65,10 +65,12 @@ public class CreateCylinder : MonoBehaviour
                 verticesList.Add(position); //add to list
             }
 
-            centerIndex = verticesList.Count; //store index of center vertex
-            verticesList.Add(branches[i].endPos); //center vertex
-
             //uncomment to create geometry for tops and bottoms of cylinders
+            
+            
+            //centerIndex = verticesList.Count; //store index of center vertex
+            //verticesList.Add(branches[i].endPos); //center vertex
+
 
             /*for (int j = 0; j < slices; j++) //set triangles
             {
@@ -83,7 +85,7 @@ public class CreateCylinder : MonoBehaviour
 
         //for first branch node
         int b = 0;
-        int t = b + slices + 2;
+        int t = b + slices + 1;
         for (int j = 0; j < slices; j++)
         {
             triangleList.Add(b + j);
