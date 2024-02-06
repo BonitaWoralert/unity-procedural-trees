@@ -136,8 +136,8 @@ public class GenerateShape : MonoBehaviour
         else
         {
             //Debug.Log("Finished!");
-            Debug.Log("Time from start to end = " + Time.time);
             DrawGeometry();
+            Debug.Log("Time from start to end = " + Time.time);
             //treeGeometry.GetComponent<CreateCylinder>().FinalizeGeometry();
             Debug.Break();
         }
