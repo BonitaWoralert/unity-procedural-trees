@@ -12,7 +12,7 @@ using static UnityEngine.Mesh;
 
 public class CreateCylinder : MonoBehaviour
 {
-    float radius = 0.2f;
+    float radius = 0.2f; //later, calculate radius based on distance from the root node
     Mesh mesh;
     
 
@@ -42,30 +42,6 @@ public class CreateCylinder : MonoBehaviour
 
         float x, y, z;
         float theta = ((float)Mathf.PI * 2) / slices; //theta
-
-        /*//create circle for the start node
-        directionAdjust = Quaternion.FromToRotation(Vector3.down, branches[0].direction);
-        for (int j = 0; j <= slices; j++)
-        {
-            x = radius * Mathf.Cos(j * theta);
-            y = 0;
-            z = radius * Mathf.Sin(j * theta);
-
-            Vector3 position = new Vector3(x, y, z);
-            position = directionAdjust * position; //rotate accordingly
-            position += branches[0].startPos; //move to correct location
-            verticesList.Add(position); //add to list
-        }
-
-        verticesList.Add(branches[0].startPos); //center vertex
-        centerIndex = verticesList.Count - 1;
-
-        for (int j = 0; j < slices; j++) //set triangles
-        {
-            triangleList.Add(centerIndex);
-            triangleList.Add(baseIndex + j + 1);
-            triangleList.Add(baseIndex + j);
-        }*/
 
         //for each branch, create circle at the end point
         for (int i = 0; i < branches.Count; i++) 
@@ -100,41 +76,38 @@ public class CreateCylinder : MonoBehaviour
             }
         }
 
-        int b = 0, t = 0; //base and top circles starting indices
         //connect together to make a cylinder!
-        for (int i = 0; i < branches.Count; i++)
+        //b and t are base and top circles starting indices
+
+        //for first branch node
+        int b = 0;
+        int t = b + slices + 2;
+        for (int j = 0; j < slices; j++)
         {
-            if(i == 0) //test with just one
-            {
-                b = 0;
-                t = b + slices+2;
-                for(int j=0;j<slices;j++)
-                {
-                    triangleList.Add(b + j);
-                    triangleList.Add(t + j);
-                    triangleList.Add(b + j + 1);
+            triangleList.Add(b + j);
+            triangleList.Add(t + j);
+            triangleList.Add(b + j + 1);
 
-                    triangleList.Add(b + j + 1);
-                    triangleList.Add(t + j);
-                    triangleList.Add(t + j + 1);
-                }
-            }
-            else
-            {
-                //b += slices + 2;
-                b = branches[i].parent.startingIndex;
-                t = branches[i].startingIndex;
-                //t = b + slices + 2;
-                for (int j = 0; j < slices; j++)
-                {
-                    triangleList.Add(b + j);
-                    triangleList.Add(t + j);
-                    triangleList.Add(b + j + 1);
+            triangleList.Add(b + j + 1);
+            triangleList.Add(t + j);
+            triangleList.Add(t + j + 1);
+        }
 
-                    triangleList.Add(b + j + 1);
-                    triangleList.Add(t + j);
-                    triangleList.Add(t + j + 1);
-                }
+        //rest of the branches
+        for (int i = 1; i < branches.Count; i++)
+        {
+            b = branches[i].parent.startingIndex;
+            t = branches[i].startingIndex;
+            //t = b + slices + 2;
+            for (int j = 0; j < slices; j++)
+            {
+                triangleList.Add(b + j);
+                triangleList.Add(t + j);
+                triangleList.Add(b + j + 1);
+
+                triangleList.Add(b + j + 1);
+                triangleList.Add(t + j);
+                triangleList.Add(t + j + 1);
             }
         }
 
@@ -155,13 +128,8 @@ public class CreateCylinder : MonoBehaviour
         mesh.vertices = vertices;
         mesh.triangles = triangles;
 
-        //optimise ?
+        //optimise and create normals
         mesh.RecalculateNormals();
         mesh.Optimize();
-    }
-
-    private void OnDrawGizmos()
-    {
-        //Gizmos.DrawWireMesh(mesh);
     }
 }
