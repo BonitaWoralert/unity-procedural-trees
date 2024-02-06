@@ -47,7 +47,12 @@ public class CreateCylinder : MonoBehaviour
         for (int i = 0; i < branches.Count; i++) 
         {
             baseIndex = verticesList.Count;
+            //adjust by branch direction
             directionAdjust = Quaternion.FromToRotation(Vector3.up, branches[i].direction);
+
+            //store the starting index of each branch
+            branches[i].startingIndex = verticesList.Count; 
+
             for (int j = 0; j <= slices; j++)
             {
                 x = radius * Mathf.Cos(j * theta);
@@ -58,22 +63,19 @@ public class CreateCylinder : MonoBehaviour
                 position = directionAdjust * position; //rotate accordingly
                 position += branches[i].endPos; //move to correct location
                 verticesList.Add(position); //add to list
-                
-                if(j == 0)
-                {
-                    branches[i].startingIndex = verticesList.Count - 1;
-                }
             }
 
+            centerIndex = verticesList.Count; //store index of center vertex
             verticesList.Add(branches[i].endPos); //center vertex
-            centerIndex = verticesList.Count- 1;
 
-            for (int j = 0; j < slices; j++) //set triangles
+            //uncomment to create geometry for tops and bottoms of cylinders
+
+            /*for (int j = 0; j < slices; j++) //set triangles
             {
                 triangleList.Add(centerIndex);
                 triangleList.Add(baseIndex + j + 1);
                 triangleList.Add(baseIndex + j);
-            }
+            }*/
         }
 
         //connect together to make a cylinder!
