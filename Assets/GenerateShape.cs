@@ -149,7 +149,7 @@ public class GenerateShape : MonoBehaviour
         GameObject treeGeometry = new GameObject("treeMesh", typeof(CreateCylinder)); //create geometry gameobject
         treeGeometry.transform.SetParent(this.transform); //set it as a child of this object
         treeGeometry.GetComponent<MeshRenderer>().material = branchMat; //set material
-        treeGeometry.GetComponent<CreateCylinder>().CreateGeometry(branches, 8, iterationCount); //create geometry with branches + specified slice count
+        treeGeometry.GetComponent<CreateCylinder>().CreateGeometry(branches, 8); //create geometry with branches + specified slice count
     }
 
     private void GenerateTree()
