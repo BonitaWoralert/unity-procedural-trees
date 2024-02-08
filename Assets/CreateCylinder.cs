@@ -12,9 +12,7 @@ using static UnityEngine.Mesh;
 
 public class CreateCylinder : MonoBehaviour
 {
-    float radius = 0.2f; //later, calculate radius based on distance from the root node
     Mesh mesh;
-    
 
     private void Awake()
     {
@@ -23,6 +21,12 @@ public class CreateCylinder : MonoBehaviour
     }
 
     public void CreateGeometry(List<Branch> branches, int slices)
+    {
+        SetRadii(branches);
+        CreateMesh(branches, slices);
+    }
+
+    private void CreateMesh(List<Branch> branches, int slices)
     {
         /*create circle with the following formula:
          *x = radius * cos(theta)
@@ -44,30 +48,30 @@ public class CreateCylinder : MonoBehaviour
         float theta = ((float)Mathf.PI * 2) / slices; //theta
 
         //for each branch, create circle at the end point
-        for (int i = 0; i < branches.Count; i++) 
+        for (int i = 0; i < branches.Count; i++)
         {
             baseIndex = verticesList.Count;
             //adjust by branch direction
             directionAdjust = Quaternion.FromToRotation(Vector3.up, branches[i].direction);
 
             //store the starting index of each branch
-            branches[i].startingIndex = verticesList.Count; 
+            branches[i].startingIndex = verticesList.Count;
 
             for (int j = 0; j <= slices; j++)
             {
-                x = radius * Mathf.Cos(j * theta);
+                x = branches[i].radius * Mathf.Cos(j * theta);
                 y = 0;
-                z = radius * Mathf.Sin(j * theta);
+                z = branches[i].radius * Mathf.Sin(j * theta);
 
-                Vector3 position = new Vector3(x, y, z); 
+                Vector3 position = new Vector3(x, y, z);
                 position = directionAdjust * position; //rotate accordingly
                 position += branches[i].endPos; //move to correct location
                 verticesList.Add(position); //add to list
             }
 
             //uncomment to create geometry for tops and bottoms of cylinders
-            
-            
+
+
             //centerIndex = verticesList.Count; //store index of center vertex
             //verticesList.Add(branches[i].endPos); //center vertex
 
@@ -102,7 +106,7 @@ public class CreateCylinder : MonoBehaviour
         {
             b = branches[i].parent.startingIndex;
             t = branches[i].startingIndex;
-            //t = b + slices + 2;
+
             for (int j = 0; j < slices; j++)
             {
                 triangleList.Add(b + j);
@@ -135,5 +139,13 @@ public class CreateCylinder : MonoBehaviour
         //optimise and create normals
         mesh.RecalculateNormals();
         mesh.Optimize();
+    }
+
+    private void SetRadii(List<Branch> branches)
+    {
+        for (int i = branches.Count - 1; i >= 0; i--)
+        {
+            branches[i].parent.radius = branches[i].radius + 0.02f;
+        }
     }
 }

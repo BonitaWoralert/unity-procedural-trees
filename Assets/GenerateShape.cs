@@ -19,7 +19,8 @@ public class Branch
     public float branchLength = 0.5f;
     public Branch parent;
     public List<Branch> children = new List<Branch>();
-    public int distanceFromRoot = 1;
+    public float radius = 0.03f;
+    public int distanceFromRoot;
 
     //mesh info
     public int startingIndex;
@@ -76,7 +77,6 @@ public class GenerateShape : MonoBehaviour
     [Header("Branches")]
     private List<Branch> branches = new List<Branch>();
     private List<Branch> newBranches = new List<Branch>();
-    private List<Branch> duplicateBranches = new List<Branch>();
     private int numOfBranchesAtBeginning = 0;
 
     //attraction points
@@ -148,8 +148,8 @@ public class GenerateShape : MonoBehaviour
         //geometry
         GameObject treeGeometry = new GameObject("treeMesh", typeof(CreateCylinder)); //create geometry gameobject
         treeGeometry.transform.SetParent(this.transform); //set it as a child of this object
-        treeGeometry.GetComponent<MeshRenderer>().material = branchMat; //set material   
-        treeGeometry.GetComponent<CreateCylinder>().CreateGeometry(branches, 8); //create geometry with branches + specified slice count
+        treeGeometry.GetComponent<MeshRenderer>().material = branchMat; //set material
+        treeGeometry.GetComponent<CreateCylinder>().CreateGeometry(branches, 8, iterationCount); //create geometry with branches + specified slice count
     }
 
     private void GenerateTree()
@@ -234,16 +234,6 @@ public class GenerateShape : MonoBehaviour
 
                         //add new branches
                         newBranches.Add(new Branch(b, newBranchDir));
-
-                        //test code
-                        /*if (branches.Exists(x => x.endPos == newBranches.Last().endPos))
-                        {
-                            duplicateBranches.Add(new Branch(b, newBranchDir));
-                            newBranches.Remove(newBranches.Last());
-                            //Debug.Log("not this branch!!");
-                        }*/
-
-                        //Debug.Log("New branch is being added: startPos = " + b.endPos + " \nDirection = " +  newBranchDir + " endPos = " + newBranches.Last().endPos);
                     }
                 }
 
@@ -252,7 +242,6 @@ public class GenerateShape : MonoBehaviour
 
                 List<int> pointsToDelete = new List<int>();
                 //remove attraction points that have been reached
-                //for (int i = 0; i < attractionPoints.Count; i++)
                 for (int i = attractionPoints.Count - 1; i >= 0; i--)
                 {
                     //also reset closest branch
@@ -262,17 +251,14 @@ public class GenerateShape : MonoBehaviour
                     {
                         if (Vector3.Distance(branch.endPos, attractionPoints[i].position) < killDistance) //if a branch is in the kill distance
                         {
-                            //Debug.Log("attraction point at " + attractionPoints[i].position + " has been removed.");
                             pointsToDelete.Add(i);
-                            //attractionPoints.Remove(attractionPoints[i]); //remove that point
                         }
                     }
                 }
                 for (int i = 0; i < pointsToDelete.Count; i++)
                     attractionPoints.RemoveAt(pointsToDelete[i]);
 
-                //clean up after iteration 
-
+                //clean up after each iteration 
                 foreach (Branch b in branches)
                 {
                     b.pointsInRange.Clear();
@@ -280,19 +266,19 @@ public class GenerateShape : MonoBehaviour
                 newBranches.Clear();
                 currentAttractionPoints.Clear();
 
-
+                if (numOfBranchesAtBeginning == branches.Count) //if branch amount has not changed
+                {
+                    finishedGenerating = true; 
+                }
             }
             else
             {
                 finishedGenerating = true;
             }
         }
-        if (numOfBranchesAtBeginning == branches.Count)
-        {
-            finishedGenerating = true;
-            //iterationCount = 9999;
-        }
     }
+
+
     /*
     private void DrawSphere()
     {
@@ -446,11 +432,6 @@ public class GenerateShape : MonoBehaviour
                 Gizmos.color = Color.black;
                 Gizmos.DrawLine(transform.InverseTransformPoint(branch.startPos), transform.InverseTransformPoint(branch.endPos));
             }
-        }
-        foreach(Branch duplicate in duplicateBranches)
-        {
-            Gizmos.color = Color.black;
-            Gizmos.DrawLine(transform.InverseTransformPoint(duplicate.startPos), transform.InverseTransformPoint(duplicate.endPos));
         }
     }
 }
