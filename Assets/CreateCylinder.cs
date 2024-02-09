@@ -22,7 +22,7 @@ public class CreateCylinder : MonoBehaviour
 
     public void CreateGeometry(List<Branch> branches, int slices)
     {
-        SetRadii(branches);
+        SetRadii(branches, 0.02f);
         CreateMesh(branches, slices);
     }
 
@@ -69,19 +69,17 @@ public class CreateCylinder : MonoBehaviour
                 verticesList.Add(position); //add to list
             }
 
-            //uncomment to create geometry for tops and bottoms of cylinders
+            //cylinder caps
+            centerIndex = verticesList.Count; //store index of center vertex
+            verticesList.Add(branches[i].endPos); //center vertex
 
 
-            //centerIndex = verticesList.Count; //store index of center vertex
-            //verticesList.Add(branches[i].endPos); //center vertex
-
-
-            /*for (int j = 0; j < slices; j++) //set triangles
+            for (int j = 0; j < slices; j++) //set triangles
             {
                 triangleList.Add(centerIndex);
                 triangleList.Add(baseIndex + j + 1);
                 triangleList.Add(baseIndex + j);
-            }*/
+            }
         }
 
         //connect together to make a cylinder!
@@ -141,11 +139,14 @@ public class CreateCylinder : MonoBehaviour
         mesh.Optimize();
     }
 
-    private void SetRadii(List<Branch> branches)
+    private void SetRadii(List<Branch> branches, float increaseValue)
     {
+        float newRadius;
         for (int i = branches.Count - 1; i >= 0; i--)
         {
-            branches[i].parent.radius = branches[i].radius + 0.02f;
+            newRadius = branches[i].radius + increaseValue; // new radius is current one + increase value
+            if (branches[i].parent.radius < newRadius) //if parent branch is smaller than this value
+                branches[i].parent.radius = newRadius; //set the value
         }
     }
 }

@@ -96,33 +96,6 @@ public class GenerateShape : MonoBehaviour
         //DrawSphere();
         GenerateAttractionPoints();
 
-        /* MeshFilter[] meshFilters = GetComponentsInChildren<MeshFilter>();
-         CombineInstance[] combine = new CombineInstance[meshFilters.Length];
-
-         int i = 0;
-         while (i < meshFilters.Length)
-         {
-             combine[i].mesh = meshFilters[i].sharedMesh;
-             combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
-             meshFilters[i].gameObject.SetActive(false);
-
-             i++;
-         }
-
-         MeshFilter meshFilter = transform.GetComponent<MeshFilter>();
-         meshFilter.mesh = new Mesh();
-         transform.GetComponent<MeshFilter>().sharedMesh = mesh;
-         meshFilter.mesh.CombineMeshes(combine, true, true);
-         gameObject.SetActive(true);*/
-
-
-        /*
-                mesh = new Mesh();
-                mesh.CombineMeshes(combine, true, true);
-                transform.GetComponent<MeshFilter>().sharedMesh = mesh;
-                transform.gameObject.SetActive(true);*/
-        ///
-
         Branch firstBranch = new Branch(new Vector3(0, -radius - Random.Range(5.0f, 7.5f), 0), Vector3.up);
         branches.Add(firstBranch);
     }
@@ -149,7 +122,7 @@ public class GenerateShape : MonoBehaviour
         GameObject treeGeometry = new GameObject("treeMesh", typeof(CreateCylinder)); //create geometry gameobject
         treeGeometry.transform.SetParent(this.transform); //set it as a child of this object
         treeGeometry.GetComponent<MeshRenderer>().material = branchMat; //set material
-        treeGeometry.GetComponent<CreateCylinder>().CreateGeometry(branches, 8); //create geometry with branches + specified slice count
+        treeGeometry.GetComponent<CreateCylinder>().CreateGeometry(branches, 16); //create geometry with branches + specified slice count
     }
 
     private void GenerateTree()
