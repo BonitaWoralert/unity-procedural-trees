@@ -16,23 +16,25 @@ public class Branch
     public Vector3 endPos;
     public Vector3 direction;
     public List<Vector3> pointsInRange = new List<Vector3>();
-    public float branchLength = 0.5f; //branch length
+    public float branchLength;
     public Branch parent;
     public List<Branch> children = new List<Branch>();
-    public float radius = 0.03f; //default radius
+    public float radius; //default radius
 
     //mesh info
     public int startingIndex;
 
-    public Branch(Branch parent, Vector3 direction)
+    public Branch(Branch parent, Vector3 direction, float length, float radius)
     {
         startPos = parent.endPos; this.direction = direction; this.parent = parent;
+        this.radius = radius; this.branchLength = length;
         endPos = startPos + (direction * branchLength);
         parent.children.Add(this);
     }
-    public Branch(Vector3 startPos, Vector3 direction)
+    public Branch(Vector3 startPos, Vector3 direction, float length, float radius)
     {
         this.startPos = startPos; this.direction = direction;
+        this.radius = radius; this.branchLength = length;
         endPos = startPos + (direction * branchLength);
         parent = this;
     }
@@ -60,10 +62,14 @@ public class GenerateShape : MonoBehaviour
     [SerializeField] private bool ShowPoints = false;
 
     [Header("Crown Variables (sphere)")]
-    [SerializeField][Range(0,25)] private float radius = 8;
+    [SerializeField][Range(0,15)] private float radius = 7.5f;
 
     [Header("Branches")]
+    [SerializeField] private int sliceCount = 8;
     [SerializeField] private Material branchMat;
+    [SerializeField][Range(0.4f, 1.0f)] private float branchLength = 0.5f;
+    [SerializeField][Range(0.0f, 1.0f)] private float branchRadius = 0.03f;
+    [SerializeField][Range(0.01f, 0.05f)] private float branchRadiusIncrease = 0.02f;
     private List<Branch> branches = new List<Branch>();
     private List<Branch> newBranches = new List<Branch>();
     private int numOfBranchesAtBeginning = 0;
@@ -84,7 +90,7 @@ public class GenerateShape : MonoBehaviour
             Random.InitState(randomSeed);
         GenerateAttractionPoints();
 
-        Branch firstBranch = new Branch(new Vector3(0, -radius - Random.Range(5.0f, 7.5f), 0), Vector3.up);
+        Branch firstBranch = new Branch(new Vector3(0, -radius - Random.Range(5.0f, 7.5f), 0), Vector3.up, branchLength, branchRadius);
         branches.Add(firstBranch);
     }
 
@@ -108,7 +114,7 @@ public class GenerateShape : MonoBehaviour
         GameObject treeGeometry = new GameObject("treeMesh", typeof(CreateCylinder)); //create geometry gameobject
         treeGeometry.transform.SetParent(this.transform); //set it as a child of this object
         treeGeometry.GetComponent<MeshRenderer>().material = branchMat; //set material
-        treeGeometry.GetComponent<CreateCylinder>().CreateGeometry(branches, 16); //create geometry with branches + specified slice count
+        treeGeometry.GetComponent<CreateCylinder>().CreateGeometry(branches, sliceCount, branchRadiusIncrease); //create geometry with branches + specified slice count
     }
 
     private void GenerateTree()
@@ -152,7 +158,7 @@ public class GenerateShape : MonoBehaviour
             if (currentAttractionPoints.Count == 0 && iterationCount < 15) //if we cant reach a point in the first 15 iterations
             {
                 //grow upwards
-                newBranches.Add(new Branch(branches.Last(), Vector3.up));
+                newBranches.Add(new Branch(branches.Last(), Vector3.up, branchLength, branchRadius));
 
                 //later, randomisation can be introduces so it doesn't just suddenly grow up
             }
@@ -183,7 +189,7 @@ public class GenerateShape : MonoBehaviour
                     newBranchDir.Normalize();
 
                     //add new branches
-                    newBranches.Add(new Branch(b, newBranchDir));
+                    newBranches.Add(new Branch(b, newBranchDir, branchLength, branchRadius));
                 }
             }
 

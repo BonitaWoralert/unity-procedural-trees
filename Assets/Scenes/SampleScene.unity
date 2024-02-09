@@ -345,21 +345,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iterationCount: 0
-  maxIterations: 100
   numOfBranches: 0
-  timeBetweenIterations: 0
-  randomSeed: 1
-  TogglePointsView: 1
-  ShowOnlyDuplicates: 1
-  branchMat: {fileID: 2100000, guid: 97c9b0991f6ab144690992e56d583373, type: 2}
+  randomSeed: 0
+  ShowPoints: 0
   radius: 7.5
-  sliceCount: 10
-  stackCount: 10
+  branchMat: {fileID: 2100000, guid: 97c9b0991f6ab144690992e56d583373, type: 2}
   displayKillDistance: 0
   killDistance: 0.7
   displayInfluenceDistance: 0
   influenceDistance: 2.37
-  numOfAttractionPoints: 1000
+  numOfAttractionPoints: 800
 --- !u!23 &922368467
 MeshRenderer:
   m_ObjectHideFlags: 0

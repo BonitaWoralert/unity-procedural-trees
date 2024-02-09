@@ -20,9 +20,9 @@ public class CreateCylinder : MonoBehaviour
         mesh.name = "cylinder";
     }
 
-    public void CreateGeometry(List<Branch> branches, int slices)
+    public void CreateGeometry(List<Branch> branches, int slices, float radiusIncrease)
     {
-        SetRadii(branches, 0.02f);
+        SetRadii(branches, radiusIncrease);
         CreateMesh(branches, slices);
     }
 
