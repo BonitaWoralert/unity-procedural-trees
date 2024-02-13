@@ -1,9 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.Mesh;
-using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 using System.Linq;
 
@@ -17,9 +14,9 @@ public class Branch
     private Vector3 endPos;
     private Vector3 direction;
     public List<Vector3> pointsInRange = new List<Vector3>();
-    private float branchLength;
-    private Branch parent;
-    private List<Branch> children = new();
+    private readonly float branchLength;
+    private readonly Branch parent;
+    private readonly List<Branch> children = new();
     private float radius; //default radius
 
     //mesh info
@@ -53,7 +50,7 @@ public class Branch
 class AttractionPoints
 {
     private Branch closestBranch;
-    private Vector3 position;
+    private readonly Vector3 position;
 
     public AttractionPoints(Vector3 position)
     { this.position = position; }
@@ -74,6 +71,8 @@ public class CreateTree : MonoBehaviour
 
     [Header("Gizmos")]
     [SerializeField] private bool ShowPoints = false;
+    [SerializeField] private bool displayKillDistance = false;
+    [SerializeField] private bool displayInfluenceDistance = false;
 
     [Header("Crown Variables (sphere)")]
     [SerializeField][Range(0,15)] private float radius = 7.5f;
@@ -90,13 +89,11 @@ public class CreateTree : MonoBehaviour
 
     //attraction points
     [Header("Attraction Points")]
-    private List<AttractionPoints> attractionPoints = new List<AttractionPoints>();
-    [SerializeField] private bool displayKillDistance = false;
     [SerializeField][Range(0, 10)] private float killDistance = 1f;
-    [SerializeField] private bool displayInfluenceDistance = false;
     [SerializeField][Range(0, 10)] private float influenceDistance = 2f;
     [SerializeField] private List<AttractionPoints> currentAttractionPoints = new List<AttractionPoints>();
     [SerializeField] private int numOfAttractionPoints = 600;
+    private List<AttractionPoints> attractionPoints = new List<AttractionPoints>();
 
     private void Start()
     {

@@ -1,12 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using TMPro.EditorUtilities;
-using Unity.VisualScripting;
 using UnityEngine;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
-using static UnityEngine.Mesh;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 
