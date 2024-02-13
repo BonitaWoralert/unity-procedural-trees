@@ -349,7 +349,11 @@ MonoBehaviour:
   randomSeed: 0
   ShowPoints: 0
   radius: 7.5
+  sliceCount: 8
   branchMat: {fileID: 2100000, guid: 97c9b0991f6ab144690992e56d583373, type: 2}
+  branchLength: 0.5
+  branchRadius: 0.01
+  branchRadiusIncrease: 0.014
   displayKillDistance: 0
   killDistance: 0.7
   displayInfluenceDistance: 0

@@ -52,26 +52,26 @@ public class CreateCylinder : MonoBehaviour
         {
             baseIndex = verticesList.Count;
             //adjust by branch direction
-            directionAdjust = Quaternion.FromToRotation(Vector3.up, branches[i].direction);
+            directionAdjust = Quaternion.FromToRotation(Vector3.up, branches[i].GetDir());
 
             //store the starting index of each branch
-            branches[i].startingIndex = verticesList.Count;
+            branches[i].SetStartingIndex(verticesList.Count);
 
             for (int j = 0; j <= slices; j++)
             {
-                x = branches[i].radius * Mathf.Cos(j * theta);
+                x = branches[i].GetRadius() * Mathf.Cos(j * theta);
                 y = 0;
-                z = branches[i].radius * Mathf.Sin(j * theta);
+                z = branches[i].GetRadius() * Mathf.Sin(j * theta);
 
                 Vector3 position = new Vector3(x, y, z);
                 position = directionAdjust * position; //rotate accordingly
-                position += branches[i].endPos; //move to correct location
+                position += branches[i].GetEndPos(); //move to correct location
                 verticesList.Add(position); //add to list
             }
 
             //cylinder caps
             centerIndex = verticesList.Count; //store index of center vertex
-            verticesList.Add(branches[i].endPos); //center vertex
+            verticesList.Add(branches[i].GetEndPos()); //center vertex
 
 
             for (int j = 0; j < slices; j++) //set triangles
@@ -102,8 +102,8 @@ public class CreateCylinder : MonoBehaviour
         //rest of the branches
         for (int i = 1; i < branches.Count; i++)
         {
-            b = branches[i].parent.startingIndex;
-            t = branches[i].startingIndex;
+            b = branches[i].GetParent().GetStartingIndex();
+            t = branches[i].GetStartingIndex();
 
             for (int j = 0; j < slices; j++)
             {
@@ -144,9 +144,9 @@ public class CreateCylinder : MonoBehaviour
         float newRadius;
         for (int i = branches.Count - 1; i >= 0; i--)
         {
-            newRadius = branches[i].radius + increaseValue; // new radius is current one + increase value
-            if (branches[i].parent.radius < newRadius) //if parent branch is smaller than this value
-                branches[i].parent.radius = newRadius; //set the value
+            newRadius = branches[i].GetRadius() + increaseValue; // new radius is current one + increase value
+            if (branches[i].GetParent().GetRadius() < newRadius) //if parent branch is smaller than this value
+                branches[i].GetParent().SetRadius(newRadius); //set the value
         }
     }
 }

@@ -12,17 +12,18 @@ using System.Linq;
 
 public class Branch
 {
-    public Vector3 startPos;
-    public Vector3 endPos;
-    public Vector3 direction;
+    //branch info
+    private Vector3 startPos;
+    private Vector3 endPos;
+    private Vector3 direction;
     public List<Vector3> pointsInRange = new List<Vector3>();
-    public float branchLength;
-    public Branch parent;
-    public List<Branch> children = new List<Branch>();
-    public float radius; //default radius
+    private float branchLength;
+    private Branch parent;
+    private List<Branch> children = new();
+    private float radius; //default radius
 
     //mesh info
-    public int startingIndex;
+    private int startingIndex;
 
     public Branch(Branch parent, Vector3 direction, float length, float radius)
     {
@@ -38,15 +39,28 @@ public class Branch
         endPos = startPos + (direction * branchLength);
         parent = this;
     }
+
+    public Vector3 GetEndPos() { return endPos; }
+    public Vector3 GetDir() { return direction; }
+    public Branch GetParent() { return parent; }
+    public float GetRadius() { return radius; }
+    public void SetRadius(float r) { radius = r; }
+    public int GetStartingIndex() { return startingIndex; }
+    public void SetStartingIndex(int index) { startingIndex = index; }
+    public int GetChildCount() { return children.Count; } 
 }
 
 class AttractionPoints
 {
-    public Branch closestBranch;
-    public Vector3 position;
+    private Branch closestBranch;
+    private Vector3 position;
 
     public AttractionPoints(Vector3 position)
     { this.position = position; }
+
+    public Branch GetClosestBranch() { return closestBranch; }
+    public void SetClosestBranch(Branch b) { closestBranch = b; }
+    public Vector3 GetPosition() { return position; }
 }
 
 public class GenerateShape : MonoBehaviour
@@ -132,15 +146,15 @@ public class GenerateShape : MonoBehaviour
                 foreach (Branch b in branches)
                 {
                     //find distance between the point and the branch
-                    float distance = Vector3.Distance(b.endPos, a.position);
+                    float distance = Vector3.Distance(b.GetEndPos(), a.GetPosition());
                     //if its in influence distance and closer than current closest branch (or if theres no closest branch) then this branch is now closest
-                    if (distance < influenceDistance && a.closestBranch == null)
+                    if (distance < influenceDistance && a.GetClosestBranch() == null)
                     {
-                        a.closestBranch = b;
+                        a.SetClosestBranch(b);
                     }
-                    else if (distance < influenceDistance && distance < Vector3.Distance(a.position, a.closestBranch.endPos))
+                    else if (distance < influenceDistance && distance < Vector3.Distance(a.GetPosition(), a.GetClosestBranch().GetEndPos()))
                     {
-                        a.closestBranch = b;
+                        a.SetClosestBranch(b);
                     }
                 }
             }
@@ -148,10 +162,10 @@ public class GenerateShape : MonoBehaviour
             //tell branches which points are affecting them
             foreach (var a in attractionPoints)
             {
-                if (a.closestBranch != null)
+                if (a.GetClosestBranch() != null)
                 {
                     currentAttractionPoints.Add(a);
-                    a.closestBranch.pointsInRange.Add(a.position);
+                    a.GetClosestBranch().pointsInRange.Add(a.GetPosition());
                 }
             }
 
@@ -169,7 +183,7 @@ public class GenerateShape : MonoBehaviour
 
             foreach (Branch b in branches)
             {
-                if (b.pointsInRange.Count > 0 && b.children.Count <= 3) //if the branch has influence points and less than 5 children
+                if (b.pointsInRange.Count > 0 && b.GetChildCount() <= 3) //if the branch has influence points and less than 5 children
                 {
                     Vector3 newBranchDir = Vector3.zero;
                     Vector3 branchToPoint;
@@ -177,9 +191,9 @@ public class GenerateShape : MonoBehaviour
                     {
                         //get normalised vector from tree node to each influencing point
                         branchToPoint = new Vector3(
-                            b.pointsInRange[i].x - b.endPos.x,
-                            b.pointsInRange[i].y - b.endPos.y,
-                            b.pointsInRange[i].z - b.endPos.z);
+                            b.pointsInRange[i].x - b.GetEndPos().x,
+                            b.pointsInRange[i].y - b.GetEndPos().y,
+                            b.pointsInRange[i].z - b.GetEndPos().z);
 
                         branchToPoint.Normalize();
                         //add together
@@ -201,11 +215,11 @@ public class GenerateShape : MonoBehaviour
             for (int i = attractionPoints.Count - 1; i >= 0; i--)
             {
                 //also reset closest branch
-                attractionPoints[i].closestBranch = null;
+                attractionPoints[i].SetClosestBranch(null);
 
                 foreach (Branch branch in newBranches)
                 {
-                    if (Vector3.Distance(branch.endPos, attractionPoints[i].position) < killDistance) //if a branch is in the kill distance
+                    if (Vector3.Distance(branch.GetEndPos(), attractionPoints[i].GetPosition()) < killDistance) //if a branch is in the kill distance
                     {
                         pointsToDelete.Add(i);
                     }
@@ -250,19 +264,19 @@ public class GenerateShape : MonoBehaviour
             foreach (var attraction in attractionPoints)
             {
                 Gizmos.color = Color.white;
-                Gizmos.DrawWireSphere(transform.InverseTransformPoint(attraction.position), 0.5f);
+                Gizmos.DrawWireSphere(transform.InverseTransformPoint(attraction.GetPosition()), 0.5f);
 
                 //draw influence + kill distance
                 if (displayKillDistance == true)
                 {
                     Gizmos.color = Color.red;
-                    Gizmos.DrawWireSphere(transform.InverseTransformPoint(attraction.position), killDistance);
+                    Gizmos.DrawWireSphere(transform.InverseTransformPoint(attraction.GetPosition()), killDistance);
                 }
             
                 if (displayInfluenceDistance == true) 
                 { 
                     Gizmos.color = Color.blue;
-                    Gizmos.DrawWireSphere(transform.InverseTransformPoint(attraction.position), influenceDistance);
+                    Gizmos.DrawWireSphere(transform.InverseTransformPoint(attraction.GetPosition()), influenceDistance);
                 }
             }
         }
