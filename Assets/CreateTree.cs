@@ -63,7 +63,7 @@ class AttractionPoints
     public Vector3 GetPosition() { return position; }
 }
 
-public class GenerateShape : MonoBehaviour
+public class CreateTree : MonoBehaviour
 {
     private bool finishedGenerating = false;
 
@@ -125,10 +125,10 @@ public class GenerateShape : MonoBehaviour
     private void DrawGeometry()
     {
         //geometry
-        GameObject treeGeometry = new GameObject("treeMesh", typeof(CreateCylinder)); //create geometry gameobject
+        GameObject treeGeometry = new GameObject("treeMesh", typeof(CreateGeometry)); //create geometry gameobject
         treeGeometry.transform.SetParent(this.transform); //set it as a child of this object
         treeGeometry.GetComponent<MeshRenderer>().material = branchMat; //set material
-        treeGeometry.GetComponent<CreateCylinder>().CreateGeometry(branches, sliceCount, branchRadiusIncrease); //create geometry with branches + specified slice count
+        treeGeometry.GetComponent<CreateGeometry>().CreateMesh(branches, sliceCount, branchRadiusIncrease); //create geometry with branches + specified slice count
     }
 
     private void GenerateTree()

@@ -10,7 +10,7 @@ using static UnityEngine.Mesh;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 
-public class CreateCylinder : MonoBehaviour
+public class CreateGeometry : MonoBehaviour
 {
     Mesh mesh;
 
@@ -20,13 +20,13 @@ public class CreateCylinder : MonoBehaviour
         mesh.name = "cylinder";
     }
 
-    public void CreateGeometry(List<Branch> branches, int slices, float radiusIncrease)
+    public void CreateMesh(List<Branch> branches, int slices, float radiusIncrease)
     {
         SetRadii(branches, radiusIncrease);
-        CreateMesh(branches, slices);
+        CalculateMesh(branches, slices);
     }
 
-    private void CreateMesh(List<Branch> branches, int slices)
+    private void CalculateMesh(List<Branch> branches, int slices)
     {
         /*create circle with the following formula:
          *x = radius * cos(theta)
