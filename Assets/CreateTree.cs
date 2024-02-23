@@ -81,18 +81,18 @@ public class CreateTree : MonoBehaviour
     [SerializeField] private int sliceCount = 8;
     [SerializeField] private Material branchMat;
     [SerializeField][Range(0.4f, 1.0f)] private float branchLength = 0.5f;
-    [SerializeField][Range(0.0f, 1.0f)] private float branchRadius = 0.03f;
-    [SerializeField][Range(0.01f, 0.05f)] private float branchRadiusIncrease = 0.02f;
+    [SerializeField][Range(0.0f, 1.0f)] private float branchRadius = 0.01f;
+    [SerializeField][Range(0.01f, 0.05f)] private float branchRadiusIncrease = 0.014f;
     private List<Branch> branches = new List<Branch>();
     private List<Branch> newBranches = new List<Branch>();
     private int numOfBranchesAtBeginning = 0;
 
     //attraction points
     [Header("Attraction Points")]
-    [SerializeField][Range(0, 10)] private float killDistance = 1f;
-    [SerializeField][Range(0, 10)] private float influenceDistance = 2f;
+    [SerializeField][Range(0, 10)] private float killDistance = 0.7f;
+    [SerializeField][Range(0, 10)] private float influenceDistance = 2.37f;
     [SerializeField] private List<AttractionPoints> currentAttractionPoints = new List<AttractionPoints>();
-    [SerializeField] private int numOfAttractionPoints = 600;
+    [SerializeField] private int numOfAttractionPoints = 800;
     private List<AttractionPoints> attractionPoints = new List<AttractionPoints>();
 
     private void Start()
